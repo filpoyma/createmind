@@ -1,24 +1,24 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Nav from '../components/Nav.astro';
+import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
-import TrustBar from '../components/TrustBar.astro';
-import Cases from '../components/Cases.astro';
-import Compare from '../components/Compare.astro';
-import HowItWorks from '../components/HowItWorks.astro';
-import CtaSection from '../components/CtaSection.astro';
+import Marquee from '../components/Marquee.astro';
+import UseCases from '../components/UseCases.astro';
+import Manifesto from '../components/Manifesto.astro';
+import Process from '../components/Process.astro';
+import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
-import ContactModal from '../components/ContactModal.astro';
 ---
 
 <BaseLayout>
-	<Nav />
-	<Hero />
-	<TrustBar />
-	<Cases />
-	<Compare />
-	<HowItWorks />
-	<CtaSection />
+	<Header />
+	<main>
+		<Hero />
+		<Marquee />
+		<UseCases />
+		<Manifesto />
+		<Process />
+		<Contact />
+	</main>
 	<Footer />
-	<ContactModal />
 </BaseLayout>

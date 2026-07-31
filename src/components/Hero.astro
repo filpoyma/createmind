@@ -1,127 +1,79 @@
-<section class="hero hero-layout">
-	<div class="hero-row">
-		<div class="hero-copy">
-			<div
-				class="hero-badge"
-				data-translate
-				data-ru="AI-автоматизация для бизнеса"
-				data-en="AI Automation for Business"
-			>
-				<span class="hero-badge-dot"></span>
-				AI-автоматизация для бизнеса
-			</div>
-			<h1
-				class="hero-title"
-				data-translate-html
-				data-ru="Ваш бизнес работает<br>на <span class='accent'>ручном труде</span>.<br>Пора это изменить."
-				data-en="Your business runs<br>on <span class='accent'>manual labor</span>.<br>Time to change that."
-			>
-				Ваш бизнес работает<br />
-				на <span class="accent">ручном труде</span>.<br />
-				Пора это изменить.
-			</h1>
-			<p
-				class="hero-description"
-				data-translate
-				data-ru="Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля."
-				data-en="We integrate artificial intelligence into real business processes — from customer replies to accounting and warehouse. No rebuild needed."
-			>
-				Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до
-				бухгалтерии и склада. Без переписывания всего с нуля.
-			</p>
+---
+---
 
-			<div class="chatgpt-input-container">
-				<button class="chatgpt-mic-btn" id="hero-voice-btn" type="button" title="Отправить голосовое">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
-					>
-						<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-						<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-						<line x1="12" x2="12" y1="19" y2="22"></line>
-					</svg>
-				</button>
-				<input
-					type="text"
-					id="hero-input-field"
-					class="chatgpt-input-field"
-					placeholder="Опишите вашу задачу..."
-					data-translate-placeholder
-					data-placeholder-ru="Опишите вашу задачу..."
-					data-placeholder-en="Describe your task..."
-				/>
-				<button
-					class="chatgpt-send-btn"
-					id="hero-send-btn"
-					type="button"
-					title="Отправить сообщение"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
-					>
-						<line x1="22" x2="11" y1="2" y2="13"></line>
-						<polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-					</svg>
-				</button>
-			</div>
-		</div>
-
-		<div class="sphere-wrapper-col">
-			<div id="sphere-trigger">
-				<div class="robot-speech-bubble" id="robot-bubble">
-					<span id="bubble-text">Какая у вас задача для меня?</span>
+<section class="relative pt-24 pb-16 lg:pt-28 lg:pb-24 overflow-hidden">
+	<div class="mx-auto max-w-7xl px-5 sm:px-8">
+		<div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+			<div>
+				<div class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-zinc-600 mb-8">
+					<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+					AI-автоматизация для бизнеса
 				</div>
-				<canvas id="crystal-canvas"></canvas>
-				<div id="sphere-glow-ring"></div>
+
+				<h1 class="font-display font-bold uppercase tracking-tighter leading-[0.94] text-[12vw] sm:text-6xl lg:text-[4.3vw] text-zinc-900">
+					<span class="block">Ваш бизнес</span>
+					<span class="block">работает</span>
+					<span class="block">на <span class="text-emerald-500">ручном</span></span>
+					<span class="block"><span class="text-emerald-500">труде.</span></span>
+					<span class="block">Пора это</span>
+					<span class="block">изменить.</span>
+				</h1>
+
+				<p class="mt-8 max-w-xl text-base sm:text-lg text-zinc-600 leading-relaxed">
+					Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля.
+				</p>
+
+				<div class="mt-10 flex items-center gap-3 rounded-full border border-zinc-200 bg-white p-2 pl-4 max-w-xl shadow-sm">
+					<button
+						type="button"
+						id="hero-mic-btn"
+						class="grid place-items-center h-10 w-10 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+						aria-label="Голосовой ввод"
+					>
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M12 19v3"></path>
+							<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+							<rect x="9" y="2" width="6" height="13" rx="3"></rect>
+						</svg>
+					</button>
+					<input
+						data-testid="hero-task-input"
+						id="hero-input"
+						type="text"
+						placeholder="Опишите вашу задачу..."
+						class="flex-1 bg-transparent outline-none text-zinc-900 placeholder:text-zinc-400 text-base min-w-0"
+					/>
+					<button
+						data-testid="hero-submit"
+						id="hero-submit"
+						type="button"
+						class="group grid place-items-center h-11 w-11 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition-colors shrink-0"
+						aria-label="Отправить"
+					>
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform group-hover:translate-x-0.5">
+							<path d="M5 12h14"></path>
+							<path d="m12 5 7 7-7 7"></path>
+						</svg>
+					</button>
+				</div>
+			</div>
+
+			<div class="relative">
+				<div class="relative aspect-[4/5] sm:aspect-[5/6] overflow-hidden border border-zinc-200 bg-zinc-100">
+					<img
+						src="/images/hero-visual.avif"
+						alt="AI-автоматизация бизнес-процессов"
+						class="w-full h-full object-cover grayscale scale-105"
+						loading="eager"
+					/>
+				</div>
+				<div class="absolute -bottom-6 -left-2 sm:left-6 border border-zinc-200 bg-white p-5 sm:p-6 max-w-xs shadow-lg">
+					<div class="font-display text-3xl sm:text-4xl font-bold text-zinc-900">24/7</div>
+					<p class="mt-2 text-sm text-zinc-600 leading-relaxed">
+						процессы идут без выходных, обедов и человеческого фактора
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
 </section>
-
-<style>
-	.hero-layout {
-		max-width: 1100px;
-		margin: 0 auto;
-		padding: 60px 24px 80px;
-		text-align: left;
-	}
-
-	.hero-row {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 40px;
-		flex-wrap: wrap;
-	}
-
-	.hero-copy {
-		flex: 1.2;
-		min-width: 320px;
-	}
-
-	.hero-title {
-		text-align: left;
-		font-size: clamp(36px, 6vw, 64px);
-	}
-
-	.hero-description {
-		margin: 0 0 32px 0;
-		max-width: 540px;
-		font-size: clamp(16px, 2.5vw, 20px);
-		color: var(--text-muted);
-		line-height: 1.7;
-	}
-</style>

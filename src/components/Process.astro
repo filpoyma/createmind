@@ -1,0 +1,33 @@
+---
+import { processSteps } from '../data/process';
+---
+
+<section id="process" class="relative py-24 lg:py-32 border-t border-zinc-200">
+	<div class="mx-auto max-w-7xl px-5 sm:px-8">
+		<div class="max-w-3xl mb-16 lg:mb-20">
+			<h2 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tighter text-zinc-900 leading-[0.95]">
+				<span class="block">Как мы</span>
+				<span class="block">работаем</span>
+			</h2>
+			<p class="mt-6 text-base sm:text-lg text-zinc-600 leading-relaxed max-w-2xl">
+				Прозрачный путь от первого разговора до работающей системы. Вы видите результат на каждом шаге.
+			</p>
+		</div>
+
+		<div class="grid sm:grid-cols-2 gap-8 lg:gap-12">
+			{
+				processSteps.map((step) => (
+					<div class="border border-zinc-200 p-6 sm:p-8 bg-white">
+						<div class="font-display text-sm font-bold text-emerald-600 mb-6">{step.number}</div>
+						<h3 class="font-display text-xl font-bold uppercase tracking-tight text-zinc-900 mb-4">
+							{step.title}
+						</h3>
+						<p class="text-sm text-zinc-600 leading-relaxed">
+							{step.description}
+						</p>
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>
