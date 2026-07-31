@@ -1,0 +1,127 @@
+<section class="hero hero-layout">
+	<div class="hero-row">
+		<div class="hero-copy">
+			<div
+				class="hero-badge"
+				data-translate
+				data-ru="AI-автоматизация для бизнеса"
+				data-en="AI Automation for Business"
+			>
+				<span class="hero-badge-dot"></span>
+				AI-автоматизация для бизнеса
+			</div>
+			<h1
+				class="hero-title"
+				data-translate-html
+				data-ru="Ваш бизнес работает<br>на <span class='accent'>ручном труде</span>.<br>Пора это изменить."
+				data-en="Your business runs<br>on <span class='accent'>manual labor</span>.<br>Time to change that."
+			>
+				Ваш бизнес работает<br />
+				на <span class="accent">ручном труде</span>.<br />
+				Пора это изменить.
+			</h1>
+			<p
+				class="hero-description"
+				data-translate
+				data-ru="Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля."
+				data-en="We integrate artificial intelligence into real business processes — from customer replies to accounting and warehouse. No rebuild needed."
+			>
+				Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до
+				бухгалтерии и склада. Без переписывания всего с нуля.
+			</p>
+
+			<div class="chatgpt-input-container">
+				<button class="chatgpt-mic-btn" id="hero-voice-btn" type="button" title="Отправить голосовое">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+						<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+						<line x1="12" x2="12" y1="19" y2="22"></line>
+					</svg>
+				</button>
+				<input
+					type="text"
+					id="hero-input-field"
+					class="chatgpt-input-field"
+					placeholder="Опишите вашу задачу..."
+					data-translate-placeholder
+					data-placeholder-ru="Опишите вашу задачу..."
+					data-placeholder-en="Describe your task..."
+				/>
+				<button
+					class="chatgpt-send-btn"
+					id="hero-send-btn"
+					type="button"
+					title="Отправить сообщение"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<line x1="22" x2="11" y1="2" y2="13"></line>
+						<polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+					</svg>
+				</button>
+			</div>
+		</div>
+
+		<div class="sphere-wrapper-col">
+			<div id="sphere-trigger">
+				<div class="robot-speech-bubble" id="robot-bubble">
+					<span id="bubble-text">Какая у вас задача для меня?</span>
+				</div>
+				<canvas id="crystal-canvas"></canvas>
+				<div id="sphere-glow-ring"></div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero-layout {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 60px 24px 80px;
+		text-align: left;
+	}
+
+	.hero-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 40px;
+		flex-wrap: wrap;
+	}
+
+	.hero-copy {
+		flex: 1.2;
+		min-width: 320px;
+	}
+
+	.hero-title {
+		text-align: left;
+		font-size: clamp(36px, 6vw, 64px);
+	}
+
+	.hero-description {
+		margin: 0 0 32px 0;
+		max-width: 540px;
+		font-size: clamp(16px, 2.5vw, 20px);
+		color: var(--text-muted);
+		line-height: 1.7;
+	}
+</style>
