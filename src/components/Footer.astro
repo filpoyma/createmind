@@ -1,45 +1,62 @@
 ---
 import { contacts } from '../data/site';
-const year = new Date().getFullYear();
+import ArrowUpRight from './icons/ArrowUpRight.astro';
 ---
 
-<footer data-testid="footer" class="bg-[#0A0A0A] text-white py-16 lg:py-20">
-	<div class="mx-auto max-w-7xl px-5 sm:px-8">
-		<div class="grid lg:grid-cols-2 gap-12 mb-12">
+<footer data-testid="footer" class="relative bg-[#0A0A0A] text-white pt-20 pb-10 overflow-hidden">
+	<div class="max-w-7xl mx-auto px-6 lg:px-8">
+		<div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10 pb-16 border-b border-zinc-800">
 			<div>
-				<div class="font-display text-xl font-bold tracking-tight">CreateMind</div>
-				<p class="mt-4 text-sm text-zinc-400 leading-relaxed max-w-md">
+				<div class="flex items-center gap-2.5 mb-6">
+					<span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+					<span class="font-display font-bold text-lg tracking-tighter">CreateMind</span>
+				</div>
+				<p class="max-w-sm text-zinc-400 leading-relaxed">
 					Команда разработчиков, которая внедряет искусственный интеллект в реальные бизнес-процессы.
 				</p>
 			</div>
-			<div class="flex flex-wrap gap-4 lg:justify-end">
+			<div class="flex flex-col gap-3">
 				<a
 					href={contacts.telegram}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-300 hover:text-white hover:border-zinc-500 transition-colors"
+					class="group inline-flex items-center gap-2 text-zinc-300 hover:text-emerald-400 transition-colors"
 				>
 					Telegram
+					<ArrowUpRight />
 				</a>
 				<a
 					href={contacts.whatsapp}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-300 hover:text-white hover:border-zinc-500 transition-colors"
+					class="group inline-flex items-center gap-2 text-zinc-300 hover:text-emerald-400 transition-colors"
 				>
 					WhatsApp
+					<ArrowUpRight />
 				</a>
 				<a
 					href={`mailto:${contacts.email}`}
-					class="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-300 hover:text-white hover:border-zinc-500 transition-colors"
+					class="group inline-flex items-center gap-2 text-zinc-300 hover:text-emerald-400 transition-colors"
 				>
-					{contacts.email}
+					hello@createmind.ai
+					<ArrowUpRight />
 				</a>
 			</div>
 		</div>
-		<div class="border-t border-zinc-800 pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs text-zinc-500">
-			<p>CreateMind © {year} CreateMind. Все права защищены.</p>
-			<p>AI-автоматизация для бизнеса</p>
+
+		<button
+			type="button"
+			id="footer-logo"
+			data-testid="footer-logo"
+			class="block w-full mt-14 text-left"
+			aria-label="Наверх"
+		>
+			<span
+				class="font-display font-bold uppercase tracking-tighter leading-none text-[15.5vw] text-white hover:text-emerald-400 transition-colors duration-500 block"
+			>
+				CreateMind
+			</span>
+		</button>
+
+		<div class="mt-10 flex flex-col sm:flex-row justify-between gap-4 text-sm text-zinc-500">
+			<span>© 2026 CreateMind. Все права защищены.</span>
+			<span>AI-автоматизация для бизнеса</span>
 		</div>
 	</div>
 </footer>

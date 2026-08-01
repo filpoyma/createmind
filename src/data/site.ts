@@ -1,7 +1,7 @@
 export const navLinks = [
-	{ href: '#use-cases', label: 'Кейсы' },
-	{ href: '#manifesto', label: 'Подход' },
-	{ href: '#process', label: 'Процесс' },
+	{ href: '#use-cases', label: 'Кейсы', testId: 'nav-use-cases' },
+	{ href: '#manifesto', label: 'Подход', testId: 'nav-manifesto' },
+	{ href: '#process', label: 'Процесс', testId: 'nav-process' },
 ] as const;
 
 export const marqueeItems = [
@@ -15,6 +15,6 @@ export const marqueeItems = [
 export const contacts = {
 	telegram: 'https://t.me/createmind',
 	telegramHandle: '@createmind',
-	whatsapp: 'https://wa.me/',
+	whatsapp: 'https://wa.me/79000000000',
 	email: 'hello@createmind.ai',
 } as const;
