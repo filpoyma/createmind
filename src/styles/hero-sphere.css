@@ -44,8 +44,29 @@
 .sphere-wrapper-col {
 	flex-shrink: 0;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+}
+
+@media (min-width: 1024px) {
+	.sphere-wrapper-col {
+		display: grid;
+		grid-template-rows: 1fr auto;
+		height: 100%;
+		min-height: 0;
+		align-items: stretch;
+	}
+
+	.sphere-stage {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 0;
+	}
+}
+
+.sphere-stage {
+	width: 100%;
 }
 
 #sphere-trigger {
@@ -75,6 +96,47 @@
 		inset 0 0 60px rgba(16, 185, 129, 0.12),
 		0 0 60px rgba(16, 185, 129, 0.08);
 	border: 1px solid rgba(24, 24, 27, 0.08);
+}
+
+/* ~sin(t*1.5)*5 / cos(t*0.9)*3 — same rhythm as the sphere in crystal-sphere.ts */
+@keyframes hero-stat-float {
+	0%,
+	100% {
+		transform: translateY(0);
+		box-shadow:
+			0 10px 24px rgba(24, 24, 27, 0.07),
+			0 2px 6px rgba(24, 24, 27, 0.04);
+	}
+	25% {
+		transform: translateY(-5px);
+		box-shadow:
+			0 14px 28px rgba(24, 24, 27, 0.09),
+			0 4px 8px rgba(24, 24, 27, 0.05);
+	}
+	50% {
+		transform: translateY(0);
+		box-shadow:
+			0 10px 24px rgba(24, 24, 27, 0.07),
+			0 2px 6px rgba(24, 24, 27, 0.04);
+	}
+	75% {
+		transform: translateY(5px);
+		box-shadow:
+			0 8px 20px rgba(24, 24, 27, 0.06),
+			0 1px 4px rgba(24, 24, 27, 0.03);
+	}
+}
+
+.hero-stat-card {
+	animation: hero-stat-float 6.5s ease-in-out infinite;
+	animation-delay: 0.35s;
+	will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-stat-card {
+		animation: none;
+	}
 }
 
 @media (max-width: 1023px) {

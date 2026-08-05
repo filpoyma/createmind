@@ -8,32 +8,42 @@
 			AI-автоматизация для бизнеса
 		</div>
 
-		<div class="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-10 xl:gap-14">
-			<h1
-				class="flex-1 min-w-0 font-display font-bold uppercase tracking-tighter leading-[0.94] text-[12vw] sm:text-6xl lg:text-[4.3vw] text-zinc-900"
-			>
-				<span class="block">Ваш бизнес</span>
-				<span class="block">работает</span>
-				<span class="block">на <span class="text-emerald-500">ручном</span></span>
-				<span class="block"><span class="text-emerald-500">труде.</span></span>
-				<span class="block">Пора это</span>
-				<span class="block">изменить.</span>
-			</h1>
+		<div class="flex flex-col gap-8 lg:grid lg:grid-cols-2 lg:gap-x-10 xl:gap-x-14 lg:items-stretch">
+			<div class="min-w-0">
+				<h1
+					class="font-display font-bold uppercase tracking-tighter leading-[0.94] text-[12vw] sm:text-6xl lg:text-[4.3vw] text-zinc-900"
+				>
+					<span class="block">Ваш бизнес</span>
+					<span class="block">работает</span>
+					<span class="block">на <span class="text-emerald-500">ручном</span></span>
+					<span class="block"><span class="text-emerald-500">труде.</span></span>
+					<span class="block">Пора это</span>
+					<span class="block">изменить.</span>
+				</h1>
 
-			<div class="sphere-wrapper-col mx-auto lg:mx-0">
-				<div id="sphere-trigger" aria-label="AI-помощник CreateMind">
-					<div class="robot-speech-bubble" id="robot-bubble">
-						<span id="bubble-text">Какая у вас задача для меня?</span>
+				<p class="mt-8 max-w-xl text-base sm:text-lg text-zinc-600 leading-relaxed">
+					Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля.
+				</p>
+			</div>
+
+			<div class="sphere-wrapper-col mx-auto lg:mx-0 lg:justify-self-end w-full max-w-[300px] lg:h-full">
+				<div class="sphere-stage">
+					<div id="sphere-trigger" aria-label="AI-помощник CreateMind">
+						<div class="robot-speech-bubble" id="robot-bubble">
+							<span id="bubble-text">Какая у вас задача для меня?</span>
+						</div>
+						<canvas id="crystal-canvas"></canvas>
+						<div id="sphere-glow-ring"></div>
 					</div>
-					<canvas id="crystal-canvas"></canvas>
-					<div id="sphere-glow-ring"></div>
+				</div>
+				<div class="hero-stat-card mt-4 lg:mt-0 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 w-full">
+					<div class="font-display text-3xl sm:text-4xl font-bold text-zinc-900">24/7</div>
+					<p class="mt-2 text-sm text-zinc-600 leading-relaxed">
+						процессы идут без выходных, обедов и человеческого фактора
+					</p>
 				</div>
 			</div>
 		</div>
-
-		<p class="mt-8 max-w-xl text-base sm:text-lg text-zinc-600 leading-relaxed">
-			Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля.
-		</p>
 
 		<div
 			class="mt-10 flex items-center gap-3 rounded-full border border-zinc-200 bg-white p-2 pl-4 max-w-xl shadow-sm"
