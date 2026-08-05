@@ -23,7 +23,7 @@ export const useCases: IUseCase[] = [
 		description:
 			'Если вы ведёте продажи, оплаты или склад в таблицах — AI переносит это в автоматическую систему. Счета, акты и отчёты формируются сами, без копирования цифр.',
 		badge: 'Нет ручного ввода — нет ошибок',
-		image: '/images/usecase-accounting.avif',
+		image: '/images/usecase-accounting.jpg',
 		imageAlt: 'Бухгалтерия и учёт из Excel',
 	},
 	{

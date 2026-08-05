@@ -1,5 +1,8 @@
 import { getCurrentLang, type TLang } from '../lib/lang';
 
+const ACCENT = '#10b981';
+const ACCENT_RGB = '16, 185, 129';
+
 type TPointer = {
 	x: number | null;
 	y: number | null;
@@ -292,12 +295,29 @@ export function initCrystalSphere(): void {
         const finalScy = cy + floatY - scrollRatio * 155;
         const finalBaseRadius = baseRadius * (1.0 - scrollRatio * 0.32);
 
+        // Матовый стеклянный фон внутри сферы
+        const frostBg = drawCtx.createRadialGradient(
+            scx,
+            finalScy,
+            finalBaseRadius * 0.1,
+            scx,
+            finalScy,
+            finalBaseRadius * 1.05,
+        );
+        frostBg.addColorStop(0, 'rgba(255, 255, 255, 0.42)');
+        frostBg.addColorStop(0.55, 'rgba(255, 255, 255, 0.1)');
+        frostBg.addColorStop(0.85, `rgba(${ACCENT_RGB}, 0.07)`);
+        frostBg.addColorStop(1, `rgba(${ACCENT_RGB}, 0.03)`);
+        drawCtx.fillStyle = frostBg;
+        drawCtx.beginPath();
+        drawCtx.arc(scx, finalScy, finalBaseRadius * 1.05, 0, Math.PI * 2);
+        drawCtx.fill();
+
         // Внутреннее свечение сферы (ИИ)
         const innerGlow = drawCtx.createRadialGradient(scx, finalScy, 0, scx, finalScy, finalBaseRadius);
-        const isEn = (getCurrentLang() === 'en');
-        const glowColor = isEn ? 'rgba(37, 99, 235, 0.12)' : 'rgba(168, 85, 247, 0.12)';
-        const glowColorCenter = isEn ? 'rgba(37, 99, 235, 0.25)' : 'rgba(168, 85, 247, 0.25)';
-        
+        const glowColor = `rgba(${ACCENT_RGB}, 0.1)`;
+        const glowColorCenter = `rgba(${ACCENT_RGB}, 0.2)`;
+
         innerGlow.addColorStop(0, glowColorCenter);
         innerGlow.addColorStop(0.6, glowColor);
         innerGlow.addColorStop(1, 'transparent');
@@ -314,10 +334,10 @@ export function initCrystalSphere(): void {
             drawCtx.arc(scx, finalScy, finalBaseRadius * 0.94, 0, Math.PI * 2);
             drawCtx.clip();
 
-            drawCtx.strokeStyle = isEn ? 'rgba(99, 102, 241, ' + (causticAlpha * 0.16) + ')' : 'rgba(168, 85, 247, ' + (causticAlpha * 0.16) + ')';
+            drawCtx.strokeStyle = `rgba(${ACCENT_RGB}, ${causticAlpha * 0.16})`;
             drawCtx.lineWidth = 1.6;
             drawCtx.shadowBlur = 6;
-            drawCtx.shadowColor = isEn ? '#6366f1' : '#a855f7';
+            drawCtx.shadowColor = ACCENT;
 
             // Рисуем 3 переливающиеся волны света Безье
             for (let j = 0; j < 3; j++) {
@@ -355,7 +375,7 @@ export function initCrystalSphere(): void {
                 drawCtx.save();
                 drawCtx.translate(scx, finalScy);
                 const rotSpeed = time * 0.35;
-                drawCtx.strokeStyle = isEn ? 'rgba(99, 102, 241, ' + globeAlpha + ')' : 'rgba(168, 85, 247, ' + globeAlpha + ')';
+                drawCtx.strokeStyle = `rgba(${ACCENT_RGB}, ${globeAlpha})`;
                 drawCtx.lineWidth = 0.65;
                 drawCtx.shadowBlur = 0;
 
@@ -387,7 +407,7 @@ export function initCrystalSphere(): void {
 
                 if (locZ > 0) {
                     drawCtx.fillStyle = '#ffffff';
-                    drawCtx.shadowColor = isEn ? '#6366f1' : '#a855f7';
+                    drawCtx.shadowColor = ACCENT;
                     drawCtx.shadowBlur = 10;
                     drawCtx.beginPath();
                     drawCtx.arc(locX, locY, 3.5, 0, Math.PI * 2);
@@ -517,7 +537,7 @@ export function initCrystalSphere(): void {
             rotateAngle = cinematicRot;
         }
 
-        const eyeColor = isEn ? '#2563eb' : '#a855f7';
+        const eyeColor = ACCENT;
 
         // ------------------ ОТРЕСОВКА ТЕЛА РОБОТА (AI BODY) ------------------
         drawCtx.save();
@@ -530,6 +550,15 @@ export function initCrystalSphere(): void {
         drawCtx.beginPath();
         drawCtx.roundRect(-6 * robotScale, 15 * robotScale, 12 * robotScale, 18 * robotScale, 3 * robotScale);
         drawCtx.fill();
+
+        // Индикатор на шее
+        drawCtx.fillStyle = ACCENT;
+        drawCtx.shadowColor = ACCENT;
+        drawCtx.shadowBlur = 8;
+        drawCtx.beginPath();
+        drawCtx.arc(0, 24 * robotScale, 2.8 * robotScale, 0, Math.PI * 2);
+        drawCtx.fill();
+        drawCtx.shadowBlur = 0;
 
         // Маленькое туловище
         const bodyW = 54 * robotScale;
@@ -559,7 +588,7 @@ export function initCrystalSphere(): void {
         drawCtx.translate(scx, headY);
         drawCtx.rotate(rotateAngle);
 
-        drawCtx.shadowColor = isEn ? 'rgba(37, 99, 235, 0.15)' : 'rgba(168, 85, 247, 0.15)';
+        drawCtx.shadowColor = `rgba(${ACCENT_RGB}, 0.15)`;
         drawCtx.shadowBlur = 20;
 
         const шлемGradient = drawCtx.createLinearGradient(-headW/2, -headH/2, headW/2, headH/2);
@@ -640,7 +669,7 @@ export function initCrystalSphere(): void {
         drawCtx.stroke();
 
         // Блик каустики/преломления на краю
-        drawCtx.strokeStyle = isEn ? 'rgba(99, 102, 241, 0.08)' : 'rgba(168, 85, 247, 0.08)';
+        drawCtx.strokeStyle = `rgba(${ACCENT_RGB}, 0.08)`;
         drawCtx.lineWidth = 2.0;
         drawCtx.beginPath();
         drawCtx.arc(scx, finalScy, finalBaseRadius - 1.5, Math.PI * 0.75, Math.PI * 1.25);
@@ -665,7 +694,7 @@ export function initCrystalSphere(): void {
         drawCtx.fill();
 
         const bottomGlow = drawCtx.createRadialGradient(scx, finalScy + finalBaseRadius * 0.7, 0, scx, finalScy + finalBaseRadius * 0.7, finalBaseRadius * 0.6);
-        bottomGlow.addColorStop(0, isEn ? 'rgba(37, 99, 235, 0.15)' : 'rgba(168, 85, 247, 0.15)');
+        bottomGlow.addColorStop(0, `rgba(${ACCENT_RGB}, 0.14)`);
         bottomGlow.addColorStop(1, 'transparent');
         drawCtx.fillStyle = bottomGlow;
         drawCtx.beginPath();
@@ -683,9 +712,9 @@ export function initCrystalSphere(): void {
                 pulseRadius = -1;
             } else {
                 drawCtx.save();
-                drawCtx.strokeStyle = isEn ? 'rgba(99, 102, 241, ' + pulseOpacity + ')' : 'rgba(168, 85, 247, ' + pulseOpacity + ')';
+                drawCtx.strokeStyle = `rgba(${ACCENT_RGB}, ${pulseOpacity})`;
                 drawCtx.lineWidth = 1.6;
-                drawCtx.shadowColor = isEn ? '#2563eb' : '#a855f7';
+                drawCtx.shadowColor = ACCENT;
                 drawCtx.shadowBlur = 8;
                 drawCtx.arc(scx, finalScy, pulseRadius, 0, Math.PI * 2);
                 drawCtx.stroke();
