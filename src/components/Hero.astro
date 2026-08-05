@@ -2,78 +2,113 @@
 ---
 
 <section class="relative pt-24 pb-16 lg:pt-28 lg:pb-24 overflow-hidden">
-	<div class="mx-auto max-w-7xl px-5 sm:px-8">
-		<div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-			<div>
-				<div class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-zinc-600 mb-8">
-					<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-					AI-автоматизация для бизнеса
-				</div>
+	<div class="mx-auto max-w-7xl px-6 lg:px-8">
+		<div class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-zinc-600 mb-8">
+			<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+			AI-автоматизация для бизнеса
+		</div>
 
-				<h1 class="font-display font-bold uppercase tracking-tighter leading-[0.94] text-[12vw] sm:text-6xl lg:text-[4.3vw] text-zinc-900">
-					<span class="block">Ваш бизнес</span>
-					<span class="block">работает</span>
-					<span class="block">на <span class="text-emerald-500">ручном</span></span>
-					<span class="block"><span class="text-emerald-500">труде.</span></span>
-					<span class="block">Пора это</span>
-					<span class="block">изменить.</span>
-				</h1>
+		<div class="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-10 xl:gap-14">
+			<h1
+				class="flex-1 min-w-0 font-display font-bold uppercase tracking-tighter leading-[0.94] text-[12vw] sm:text-6xl lg:text-[4.3vw] text-zinc-900"
+			>
+				<span class="block">Ваш бизнес</span>
+				<span class="block">работает</span>
+				<span class="block">на <span class="text-emerald-500">ручном</span></span>
+				<span class="block"><span class="text-emerald-500">труде.</span></span>
+				<span class="block">Пора это</span>
+				<span class="block">изменить.</span>
+			</h1>
 
-				<p class="mt-8 max-w-xl text-base sm:text-lg text-zinc-600 leading-relaxed">
-					Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля.
-				</p>
-
-				<div class="mt-10 flex items-center gap-3 rounded-full border border-zinc-200 bg-white p-2 pl-4 max-w-xl shadow-sm">
-					<button
-						type="button"
-						id="hero-mic-btn"
-						class="grid place-items-center h-10 w-10 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
-						aria-label="Голосовой ввод"
-					>
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<path d="M12 19v3"></path>
-							<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-							<rect x="9" y="2" width="6" height="13" rx="3"></rect>
-						</svg>
-					</button>
-					<input
-						data-testid="hero-task-input"
-						id="hero-input"
-						type="text"
-						placeholder="Опишите вашу задачу..."
-						class="flex-1 bg-transparent outline-none text-zinc-900 placeholder:text-zinc-400 text-base min-w-0"
-					/>
-					<button
-						data-testid="hero-submit"
-						id="hero-submit"
-						type="button"
-						class="group grid place-items-center h-11 w-11 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition-colors shrink-0"
-						aria-label="Отправить"
-					>
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform group-hover:translate-x-0.5">
-							<path d="M5 12h14"></path>
-							<path d="m12 5 7 7-7 7"></path>
-						</svg>
-					</button>
-				</div>
-			</div>
-
-			<div class="relative">
-				<div class="relative aspect-[4/5] sm:aspect-[5/6] overflow-hidden border border-zinc-200 bg-zinc-100">
-					<img
-						src="/images/hero-visual.avif"
-						alt="AI-автоматизация бизнес-процессов"
-						class="w-full h-full object-cover grayscale scale-105"
-						loading="eager"
-					/>
-				</div>
-				<div class="absolute -bottom-6 -left-2 sm:left-6 border border-zinc-200 bg-white p-5 sm:p-6 max-w-xs shadow-lg">
-					<div class="font-display text-3xl sm:text-4xl font-bold text-zinc-900">24/7</div>
-					<p class="mt-2 text-sm text-zinc-600 leading-relaxed">
-						процессы идут без выходных, обедов и человеческого фактора
-					</p>
+			<div class="sphere-wrapper-col mx-auto lg:mx-0">
+				<div id="sphere-trigger" aria-label="AI-помощник CreateMind">
+					<div class="robot-speech-bubble" id="robot-bubble">
+						<span id="bubble-text">Какая у вас задача для меня?</span>
+					</div>
+					<canvas id="crystal-canvas"></canvas>
+					<div id="sphere-glow-ring"></div>
 				</div>
 			</div>
 		</div>
+
+		<p class="mt-8 max-w-xl text-base sm:text-lg text-zinc-600 leading-relaxed">
+			Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля.
+		</p>
+
+		<div
+			class="mt-10 flex items-center gap-3 rounded-full border border-zinc-200 bg-white p-2 pl-4 max-w-xl shadow-sm"
+		>
+			<button
+				type="button"
+				id="hero-mic-btn"
+				class="grid place-items-center h-10 w-10 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+				aria-label="Голосовой ввод"
+			>
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M12 19v3"></path>
+					<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+					<rect x="9" y="2" width="6" height="13" rx="3"></rect>
+				</svg>
+			</button>
+			<input
+				data-testid="hero-task-input"
+				id="hero-input"
+				type="text"
+				placeholder="Опишите вашу задачу..."
+				class="flex-1 bg-transparent outline-none text-zinc-900 placeholder:text-zinc-400 text-base min-w-0"
+			/>
+			<button
+				data-testid="hero-submit"
+				id="hero-submit"
+				type="button"
+				class="group grid place-items-center h-11 w-11 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition-colors shrink-0"
+				aria-label="Отправить"
+			>
+				<svg
+					width="18"
+					height="18"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					class="transition-transform group-hover:translate-x-0.5"
+				>
+					<path d="M5 12h14"></path>
+					<path d="m12 5 7 7-7 7"></path>
+				</svg>
+			</button>
+		</div>
 	</div>
 </section>
+
+<style is:global>
+	@import '../styles/hero-sphere.css';
+</style>
+
+<script>
+	import { initCrystalSphere } from '../scripts/crystal-sphere';
+
+	function initHeroSphere() {
+		initCrystalSphere();
+
+		const sphereTrigger = document.getElementById('sphere-trigger');
+		const contact = document.getElementById('contact');
+		const taskField = document.getElementById('contact-task') as HTMLTextAreaElement | null;
+		const heroInput = document.getElementById('hero-input') as HTMLInputElement | null;
+
+		sphereTrigger?.addEventListener('click', () => {
+			const prefill = heroInput?.value.trim();
+			if (prefill && taskField) {
+				taskField.value = prefill;
+			}
+			contact?.scrollIntoView({ behavior: 'smooth' });
+			taskField?.focus();
+		});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initHeroSphere);
+	} else {
+		initHeroSphere();
+	}
+</script>
