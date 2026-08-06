@@ -1,8 +1,12 @@
+import { randomUUID } from 'crypto';
 import {
 	ChatSession,
 	type IChatSession,
-	type TChatRole,
 } from '../models/chatSession.model';
+import {
+	MAX_PROJECTS_PER_USER,
+	ProjectLimitReachedError,
+} from '../constants/chat.limits';
 
 const UUID_REGEX =
 	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -17,16 +21,31 @@ export function isValidFingerprint(fingerprint: string): boolean {
 	return FINGERPRINT_REGEX.test(fingerprint);
 }
 
-function toSessionResponse(session: IChatSession, restored = false) {
-	return {
-		chatId: session.chatId,
-		messages: session.messages.map((message) => ({
-			role: message.role,
-			text: message.text,
-			createdAt: message.createdAt.toISOString(),
-		})),
-		restored,
-	};
+function getOwnerFingerprint(session: IChatSession): string | undefined {
+	return session.ownerFingerprint ?? session.fingerprintHash;
+}
+
+export async function countUserProjects(fingerprint: string): Promise<number> {
+	return ChatSession.countDocuments({
+		$or: [{ ownerFingerprint: fingerprint }, { fingerprintHash: fingerprint }],
+	});
+}
+
+export async function canUserStartNewProject(
+	fingerprint?: string,
+): Promise<boolean> {
+	if (!fingerprint) return true;
+	const count = await countUserProjects(fingerprint);
+	return count < MAX_PROJECTS_PER_USER;
+}
+
+async function assertCanCreateProject(fingerprint?: string): Promise<void> {
+	if (!fingerprint) return;
+
+	const count = await countUserProjects(fingerprint);
+	if (count >= MAX_PROJECTS_PER_USER) {
+		throw new ProjectLimitReachedError();
+	}
 }
 
 async function updateFingerprint(
@@ -34,7 +53,12 @@ async function updateFingerprint(
 	fingerprint?: string,
 ): Promise<void> {
 	if (!fingerprint) return;
+
 	session.fingerprintHash = fingerprint;
+	if (!session.ownerFingerprint) {
+		session.ownerFingerprint = fingerprint;
+	}
+
 	await session.save();
 }
 
@@ -79,6 +103,10 @@ export async function resolveOrCreateSession(
 			}
 
 			existingByFingerprint.fingerprintHash = fingerprint;
+			if (!existingByFingerprint.ownerFingerprint) {
+				existingByFingerprint.ownerFingerprint = fingerprint;
+			}
+
 			await existingByFingerprint.save();
 
 			return {
@@ -88,11 +116,19 @@ export async function resolveOrCreateSession(
 		}
 	}
 
+	await assertCanCreateProject(fingerprint);
+
 	const session = await ChatSession.create({
 		chatId,
 		fingerprintHash: fingerprint,
+		ownerFingerprint: fingerprint,
 		previousChatIds: [],
 		messages: [],
+		brief: {
+			understandingConfirmed: false,
+			leadComplete: false,
+			stage: 'discovery',
+		},
 	});
 
 	return {
@@ -101,23 +137,45 @@ export async function resolveOrCreateSession(
 	};
 }
 
-export async function addMessageToSession(
-	chatId: string,
-	role: TChatRole,
-	text: string,
+export async function createNewChatSession(
+	currentChatId: string,
 	fingerprint?: string,
-) {
-	const session = await findSessionByChatId(chatId, fingerprint);
-	if (!session) return null;
+): Promise<IChatSession | null> {
+	const current = await ChatSession.findOne({ chatId: currentChatId });
+	if (!current || !current.brief.leadComplete) {
+		return null;
+	}
 
-	session.messages.push({
-		role,
-		text,
-		createdAt: new Date(),
+	await assertCanCreateProject(fingerprint);
+
+	const newChatId = randomUUID();
+
+	if (fingerprint) {
+		if (!current.ownerFingerprint) {
+			current.ownerFingerprint = fingerprint;
+		}
+
+		current.fingerprintHash = undefined;
+		await current.save();
+	}
+
+	return ChatSession.create({
+		chatId: newChatId,
+		fingerprintHash: fingerprint,
+		ownerFingerprint: fingerprint,
+		previousChatIds: [],
+		messages: [],
+		brief: {
+			understandingConfirmed: false,
+			leadComplete: false,
+			stage: 'discovery',
+		},
 	});
-
-	await session.save();
-	return session;
 }
 
-export { toSessionResponse };
+export async function getCanStartNewProjectForSession(
+	session: IChatSession,
+): Promise<boolean> {
+	const fingerprint = getOwnerFingerprint(session);
+	return canUserStartNewProject(fingerprint);
+}

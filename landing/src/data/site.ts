@@ -13,8 +13,8 @@ export const marqueeItems = [
 ] as const;
 
 export const contacts = {
-	telegram: 'https://t.me/createmind',
+	telegram: 'https://t.me/andrey_dobrosvet',
 	telegramHandle: '@createmind',
-	whatsapp: 'https://wa.me/79000000000',
-	email: 'hello@createmind.ai',
+	whatsapp: 'https://wa.me/79998508849',
+	email: 'hello@createmind.org',
 } as const;

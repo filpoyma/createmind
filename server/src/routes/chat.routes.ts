@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import {
-	addChatMessage,
-	addMessageValidation,
 	chatIdParamValidation,
+	generateChatSpec,
 	getChatSession,
+	restartChatSession,
 	resolveChatSession,
 	resolveSessionValidation,
+	sendChatMessage,
+	sendMessageValidation,
 } from '../controllers/chat.controller';
-import { strictRateLimiter } from '../middleware/security/rateLimiter';
+import { aiRateLimiter, strictRateLimiter } from '../middleware/security/rateLimiter';
 
 const router = Router();
 
@@ -20,9 +22,22 @@ router.post(
 );
 router.post(
 	'/sessions/:chatId/messages',
+	aiRateLimiter,
 	chatIdParamValidation,
-	addMessageValidation,
-	addChatMessage,
+	sendMessageValidation,
+	sendChatMessage,
+);
+router.post(
+	'/sessions/:chatId/spec',
+	aiRateLimiter,
+	chatIdParamValidation,
+	generateChatSpec,
+);
+router.post(
+	'/sessions/:chatId/restart',
+	strictRateLimiter,
+	chatIdParamValidation,
+	restartChatSession,
 );
 
 export default router;

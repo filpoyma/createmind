@@ -3,22 +3,36 @@ import { body, param } from 'express-validator';
 import { asyncHandler } from '../utils/asyncHandler';
 import { validate } from '../middleware/validator';
 import { HTTP_STATUS } from '../constants/status.constants';
+import { ProjectLimitReachedError } from '../constants/chat.limits';
+import { isOpenAiConfigured } from '../config/openai';
+import type { IChatSession } from '../models/chatSession.model';
 import {
-	addMessageToSession,
+	createNewChatSession,
 	findSessionByChatId,
+	getCanStartNewProjectForSession,
 	isValidChatId,
 	isValidFingerprint,
 	resolveOrCreateSession,
-	toSessionResponse,
 } from '../services/chatSession.service';
+import { generateInterviewTurn } from '../services/ai/interview.service';
+import { generateProjectSpec, renderSpecText } from '../services/ai/spec.service';
+import { AiProviderError } from '../services/ai/openai.provider';
+import { sendProjectSpecEmail } from '../services/email/specEmail.service';
+import { sendProjectSpecTelegram } from '../services/telegram/specTelegram.service';
+import {
+	applyInterviewTurn,
+	canGenerateSpec,
+	MAX_SESSION_MESSAGES,
+	saveProjectSpec,
+	toSessionResponse,
+} from '../services/projectBrief.service';
 
 interface IResolveSessionBody {
 	chatId?: string;
 	fingerprint?: string;
 }
 
-interface IAddMessageBody {
-	role?: string;
+interface ISendMessageBody {
 	text?: string;
 }
 
@@ -55,6 +69,60 @@ function getChatIdFromRequest(req: Request): string | undefined {
 	return undefined;
 }
 
+async function buildSessionPayload(session: IChatSession, restored = false) {
+	const canStartNewProject = await getCanStartNewProjectForSession(session);
+	return toSessionResponse(session, restored, canStartNewProject);
+}
+
+async function deliverProjectSpecEmail(
+	session: IChatSession,
+	specText: string,
+	title?: string,
+): Promise<void> {
+	if (session.specEmailSentAt) return;
+
+	const sent = await sendProjectSpecEmail({
+		chatId: session.chatId,
+		specText,
+		brief: session.brief,
+		title,
+	});
+
+	if (!sent) return;
+
+	session.specEmailSentAt = new Date();
+	await session.save();
+}
+
+async function deliverProjectSpecTelegram(
+	session: IChatSession,
+	specText: string,
+	title?: string,
+): Promise<void> {
+	if (session.specTelegramSentAt) return;
+
+	const sent = await sendProjectSpecTelegram({
+		chatId: session.chatId,
+		specText,
+		brief: session.brief,
+		title,
+	});
+
+	if (!sent) return;
+
+	session.specTelegramSentAt = new Date();
+	await session.save();
+}
+
+async function deliverProjectSpecNotifications(
+	session: IChatSession,
+	specText: string,
+	title?: string,
+): Promise<void> {
+	await deliverProjectSpecEmail(session, specText, title);
+	await deliverProjectSpecTelegram(session, specText, title);
+}
+
 export const getChatSession = asyncHandler(
 	async (req: Request, res: Response): Promise<void> => {
 		const chatId = getChatIdFromRequest(req);
@@ -80,7 +148,7 @@ export const getChatSession = asyncHandler(
 
 		res.status(HTTP_STATUS.OK).json({
 			success: true,
-			data: toSessionResponse(session),
+			data: await buildSessionPayload(session),
 		});
 	},
 );
@@ -98,16 +166,235 @@ export const resolveChatSession = asyncHandler(
 		}
 
 		const fingerprint = getFingerprintFromRequest(req);
-		const { session, restored } = await resolveOrCreateSession(chatId, fingerprint);
 
-		res.status(HTTP_STATUS.OK).json({
-			success: true,
-			data: toSessionResponse(session, restored),
-		});
+		try {
+			const { session, restored } = await resolveOrCreateSession(chatId, fingerprint);
+
+			res.status(HTTP_STATUS.OK).json({
+				success: true,
+				data: await buildSessionPayload(session, restored),
+			});
+		} catch (error) {
+			if (error instanceof ProjectLimitReachedError) {
+				res.status(HTTP_STATUS.FORBIDDEN).json({
+					success: false,
+					code: error.code,
+					message: error.message,
+				});
+				return;
+			}
+
+			throw error;
+		}
 	},
 );
 
-export const addChatMessage = asyncHandler(
+export const sendChatMessage = asyncHandler(
+	async (req: Request, res: Response): Promise<void> => {
+		if (!isOpenAiConfigured) {
+			res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
+				success: false,
+				message: 'AI-сервис не настроен',
+			});
+			return;
+		}
+
+		const chatId = getChatIdFromRequest(req);
+
+		if (!chatId) {
+			res.status(HTTP_STATUS.BAD_REQUEST).json({
+				success: false,
+				message: 'Некорректный идентификатор чата',
+			});
+			return;
+		}
+
+		const { text } = req.body as ISendMessageBody;
+		const fingerprint = getFingerprintFromRequest(req);
+
+		let session = await findSessionByChatId(chatId, fingerprint);
+		if (!session) {
+			try {
+				const resolved = await resolveOrCreateSession(chatId, fingerprint);
+				session = resolved.session;
+			} catch (error) {
+				if (error instanceof ProjectLimitReachedError) {
+					res.status(HTTP_STATUS.FORBIDDEN).json({
+						success: false,
+						code: error.code,
+						message: error.message,
+					});
+					return;
+				}
+
+				throw error;
+			}
+		}
+
+		if (session.messages.length >= MAX_SESSION_MESSAGES) {
+			res.status(HTTP_STATUS.BAD_REQUEST).json({
+				success: false,
+				message: 'Достигнут лимит сообщений в чате',
+			});
+			return;
+		}
+
+		if (session.brief.leadComplete) {
+			const canStartNewProject = await getCanStartNewProjectForSession(session);
+			res.status(HTTP_STATUS.BAD_REQUEST).json({
+				success: false,
+				code: 'LEAD_COMPLETE',
+				canStartNewProject,
+				message: canStartNewProject
+					? 'Заявка уже завершена. Можно сформировать ТЗ или начать новую заявку.'
+					: 'Заявка уже завершена. Достигнут лимит в 3 проекта — можно сформировать ТЗ по текущему проекту.',
+			});
+			return;
+		}
+
+		session.messages.push({
+			role: 'user',
+			text: text as string,
+			createdAt: new Date(),
+		});
+		await session.save();
+
+		try {
+			const turn = await generateInterviewTurn(session.messages, {
+				taskSummary: session.brief.taskSummary,
+				expectedResult: session.brief.expectedResult,
+				projectType: session.brief.projectType,
+				contact: session.brief.contact,
+				understandingConfirmed: session.brief.understandingConfirmed,
+				leadComplete: session.brief.leadComplete,
+				stage: session.brief.stage,
+			});
+
+			applyInterviewTurn(session, turn);
+			await session.save();
+
+			res.status(HTTP_STATUS.OK).json({
+				success: true,
+				data: await buildSessionPayload(session),
+			});
+		} catch (error) {
+			if (error instanceof AiProviderError) {
+				res.status(error.statusCode).json({
+					success: false,
+					message: 'Не удалось получить ответ AI. Попробуйте ещё раз.',
+				});
+				return;
+			}
+
+			throw error;
+		}
+	},
+);
+
+export const generateChatSpec = asyncHandler(
+	async (req: Request, res: Response): Promise<void> => {
+		if (!isOpenAiConfigured) {
+			res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
+				success: false,
+				message: 'AI-сервис не настроен',
+			});
+			return;
+		}
+
+		const chatId = getChatIdFromRequest(req);
+
+		if (!chatId) {
+			res.status(HTTP_STATUS.BAD_REQUEST).json({
+				success: false,
+				message: 'Некорректный идентификатор чата',
+			});
+			return;
+		}
+
+		const fingerprint = getFingerprintFromRequest(req);
+		const session = await findSessionByChatId(chatId, fingerprint);
+
+		if (!session) {
+			res.status(HTTP_STATUS.NOT_FOUND).json({
+				success: false,
+				message: 'Сессия чата не найдена',
+			});
+			return;
+		}
+
+		const brief = {
+			taskSummary: session.brief.taskSummary,
+			expectedResult: session.brief.expectedResult,
+			projectType: session.brief.projectType,
+			contact: session.brief.contact,
+			understandingConfirmed: session.brief.understandingConfirmed,
+			leadComplete: session.brief.leadComplete,
+			stage: session.brief.stage,
+		};
+
+		if (!canGenerateSpec(brief)) {
+			res.status(HTTP_STATUS.CONFLICT).json({
+				success: false,
+				message: 'Заявка ещё не завершена',
+			});
+			return;
+		}
+
+			if (session.spec) {
+				await deliverProjectSpecNotifications(
+					session,
+					session.spec.text,
+					typeof session.spec.json?.title === 'string' ? session.spec.json.title : undefined,
+				);
+
+			res.status(HTTP_STATUS.OK).json({
+				success: true,
+				data: {
+					text: session.spec.text,
+					json: session.spec.json,
+					generatedAt: session.spec.generatedAt.toISOString(),
+				},
+			});
+			return;
+		}
+
+		try {
+			const specJson = await generateProjectSpec(session.messages, brief);
+			const specText = renderSpecText(specJson);
+			const generatedAt = new Date();
+
+			saveProjectSpec(session, {
+				text: specText,
+				json: specJson,
+				generatedAt,
+			});
+
+				await session.save();
+				await deliverProjectSpecNotifications(session, specText, specJson.title);
+
+			res.status(HTTP_STATUS.OK).json({
+				success: true,
+				data: {
+					text: specText,
+					json: specJson,
+					generatedAt: generatedAt.toISOString(),
+				},
+			});
+		} catch (error) {
+			if (error instanceof AiProviderError) {
+				res.status(error.statusCode).json({
+					success: false,
+					message: 'Не удалось сформировать ТЗ. Попробуйте ещё раз.',
+				});
+				return;
+			}
+
+			throw error;
+		}
+	},
+);
+
+export const restartChatSession = asyncHandler(
 	async (req: Request, res: Response): Promise<void> => {
 		const chatId = getChatIdFromRequest(req);
 
@@ -119,30 +406,35 @@ export const addChatMessage = asyncHandler(
 			return;
 		}
 
-		const { role, text } = req.body as IAddMessageBody;
 		const fingerprint = getFingerprintFromRequest(req);
 
-		const session = await addMessageToSession(
-			chatId,
-			role as 'user' | 'assistant',
-			text as string,
-			fingerprint,
-		);
+		try {
+			const session = await createNewChatSession(chatId, fingerprint);
 
-		if (!session) {
-			res.status(HTTP_STATUS.NOT_FOUND).json({
-				success: false,
-				message: 'Сессия чата не найдена',
+			if (!session) {
+				res.status(HTTP_STATUS.CONFLICT).json({
+					success: false,
+					message: 'Новую заявку можно начать только после завершения текущей',
+				});
+				return;
+			}
+
+			res.status(HTTP_STATUS.CREATED).json({
+				success: true,
+				data: await buildSessionPayload(session),
 			});
-			return;
-		}
+		} catch (error) {
+			if (error instanceof ProjectLimitReachedError) {
+				res.status(HTTP_STATUS.FORBIDDEN).json({
+					success: false,
+					code: error.code,
+					message: error.message,
+				});
+				return;
+			}
 
-		res.status(HTTP_STATUS.OK).json({
-			success: true,
-			data: {
-				messages: toSessionResponse(session).messages,
-			},
-		});
+			throw error;
+		}
 	},
 );
 
@@ -162,11 +454,8 @@ export const chatIdParamValidation = validate([
 	param('chatId').isUUID().withMessage('chatId must be a valid UUID'),
 ]);
 
-export const addMessageValidation = validate([
+export const sendMessageValidation = validate([
 	param('chatId').isUUID().withMessage('chatId must be a valid UUID'),
-	body('role')
-		.isIn(['user', 'assistant'])
-		.withMessage('role must be user or assistant'),
 	body('text')
 		.isString()
 		.trim()
