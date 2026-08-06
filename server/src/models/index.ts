@@ -1,1 +1,1 @@
-// Export models here as they are added.
+export { ChatSession } from './chatSession.model';

@@ -31,11 +31,7 @@ function pickSupportedMimeType(): string {
 	return candidates.find((type) => MediaRecorder.isTypeSupported(type)) ?? '';
 }
 
-function getApiUrl(): string {
-	const configured = import.meta.env.PUBLIC_API_URL;
-	if (configured) return configured.replace(/\/$/, '');
-	return 'http://localhost:5000/api';
-}
+import { getApiUrl } from '../lib/api';
 
 async function transcribeAudio(formData: FormData, apiUrl: string): Promise<string> {
 	const response = await fetch(`${apiUrl}/transcriptions`, {
