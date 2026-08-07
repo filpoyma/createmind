@@ -56,6 +56,8 @@ export const ui = {
 			'Например: менеджеры вручную отвечают клиентам в WhatsApp...',
 		'contact.form.submit': 'Отправить заявку',
 		'contact.form.success': 'Спасибо! Мы свяжемся с вами в ближайшее время.',
+		'contact.form.error': 'Не удалось отправить заявку. Попробуйте позже или напишите нам в Telegram.',
+		'contact.form.sending': 'Отправка...',
 
 		'footer.description':
 			'Команда разработчиков, которая внедряет искусственный интеллект в реальные бизнес-процессы.',
@@ -128,6 +130,8 @@ export const ui = {
 			'e.g. managers manually reply to customers on WhatsApp...',
 		'contact.form.submit': 'Submit request',
 		'contact.form.success': 'Thank you! We will get back to you shortly.',
+		'contact.form.error': 'Failed to submit the request. Please try again later or message us on Telegram.',
+		'contact.form.sending': 'Sending...',
 
 		'footer.description':
 			'A development team that embeds artificial intelligence into real business processes.',

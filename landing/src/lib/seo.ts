@@ -44,7 +44,7 @@ export function buildJsonLd(locale: TLocale, description: string) {
 				'@id': `${SITE_URL}/#organization`,
 				name: 'CreateMind',
 				url: SITE_URL,
-				logo: absoluteUrl('/favicon.svg'),
+				logo: absoluteUrl('/favicon.png'),
 				email: contacts.email,
 				sameAs: [contacts.telegram, contacts.whatsapp],
 			},
