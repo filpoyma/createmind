@@ -3,32 +3,72 @@ import type {
 	IProjectBrief,
 	IProjectSpecJson,
 } from '../../types/interview.types';
+import type { TLocale } from '../../types/locale.types';
 import { createStructuredResponse } from './openai.provider';
-import { SPEC_SYSTEM_PROMPT } from './spec.prompt';
+import { getSpecSystemPrompt } from './spec.prompt';
 import { specResponseSchema } from './spec.schema';
 
-export function renderSpecText(spec: IProjectSpecJson): string {
+const SPEC_LABELS = {
+	ru: {
+		summary: '## Краткое описание',
+		goals: '## Цели',
+		scope: '## Область работ',
+		deliverables: '## Результаты',
+		openQuestions: '## Открытые вопросы',
+		contact: '## Контакт',
+		none: 'Нет',
+		user: 'Пользователь',
+		assistant: 'Ассистент',
+		briefHeader: 'Данные заявки:',
+		task: 'Задача',
+		expectedResult: 'Ожидаемый результат',
+		projectType: 'Тип проекта',
+		contactField: 'Контакт',
+		dialog: 'Диалог:',
+	},
+	en: {
+		summary: '## Summary',
+		goals: '## Goals',
+		scope: '## Scope',
+		deliverables: '## Deliverables',
+		openQuestions: '## Open questions',
+		contact: '## Contact',
+		none: 'None',
+		user: 'User',
+		assistant: 'Assistant',
+		briefHeader: 'Request data:',
+		task: 'Task',
+		expectedResult: 'Expected outcome',
+		projectType: 'Project type',
+		contactField: 'Contact',
+		dialog: 'Dialog:',
+	},
+} as const;
+
+export function renderSpecText(spec: IProjectSpecJson, locale: TLocale = 'ru'): string {
+	const labels = SPEC_LABELS[locale];
+
 	const sections = [
 		`# ${spec.title}`,
 		'',
-		'## Краткое описание',
+		labels.summary,
 		spec.summary,
 		'',
-		'## Цели',
+		labels.goals,
 		...spec.goals.map((goal) => `- ${goal}`),
 		'',
-		'## Область работ',
+		labels.scope,
 		...spec.scope.map((item) => `- ${item}`),
 		'',
-		'## Результаты',
+		labels.deliverables,
 		...spec.deliverables.map((item) => `- ${item}`),
 		'',
-		'## Открытые вопросы',
+		labels.openQuestions,
 		...(spec.open_questions.length
 			? spec.open_questions.map((item) => `- ${item}`)
-			: ['- Нет']),
+			: [`- ${labels.none}`]),
 		'',
-		'## Контакт',
+		labels.contact,
 		spec.contact,
 	];
 
@@ -38,24 +78,30 @@ export function renderSpecText(spec: IProjectSpecJson): string {
 export async function generateProjectSpec(
 	messages: IChatMessage[],
 	brief: IProjectBrief,
+	locale: TLocale = 'ru',
 ): Promise<IProjectSpecJson> {
+	const labels = SPEC_LABELS[locale];
+
 	const dialog = messages
-		.map((message) => `${message.role === 'user' ? 'Пользователь' : 'Ассистент'}: ${message.text}`)
+		.map(
+			(message) =>
+				`${message.role === 'user' ? labels.user : labels.assistant}: ${message.text}`,
+		)
 		.join('\n');
 
 	const briefContext = [
-		'Данные заявки:',
-		`- Задача: ${brief.taskSummary ?? '—'}`,
-		`- Ожидаемый результат: ${brief.expectedResult ?? '—'}`,
-		`- Тип проекта: ${brief.projectType ?? '—'}`,
-		`- Контакт: ${brief.contact ?? '—'}`,
+		labels.briefHeader,
+		`- ${labels.task}: ${brief.taskSummary ?? '—'}`,
+		`- ${labels.expectedResult}: ${brief.expectedResult ?? '—'}`,
+		`- ${labels.projectType}: ${brief.projectType ?? '—'}`,
+		`- ${labels.contactField}: ${brief.contact ?? '—'}`,
 		'',
-		'Диалог:',
+		labels.dialog,
 		dialog,
 	].join('\n');
 
 	return createStructuredResponse<IProjectSpecJson>({
-		instructions: SPEC_SYSTEM_PROMPT,
+		instructions: getSpecSystemPrompt(locale),
 		input: [{ role: 'user', content: briefContext }],
 		schemaName: 'project_spec',
 		schema: specResponseSchema,

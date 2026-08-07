@@ -3,6 +3,7 @@ import {
 	ChatSession,
 	type IChatSession,
 } from '../models/chatSession.model';
+import type { TLocale } from '../types/locale.types';
 import {
 	MAX_PROJECTS_PER_USER,
 	ProjectLimitReachedError,
@@ -79,6 +80,7 @@ export async function findSessionByChatId(
 export async function resolveOrCreateSession(
 	chatId: string,
 	fingerprint?: string,
+	locale: TLocale = 'ru',
 ) {
 	const existingByChatId = await ChatSession.findOne({ chatId });
 	if (existingByChatId) {
@@ -120,6 +122,7 @@ export async function resolveOrCreateSession(
 
 	const session = await ChatSession.create({
 		chatId,
+		locale,
 		fingerprintHash: fingerprint,
 		ownerFingerprint: fingerprint,
 		previousChatIds: [],
@@ -140,6 +143,7 @@ export async function resolveOrCreateSession(
 export async function createNewChatSession(
 	currentChatId: string,
 	fingerprint?: string,
+	locale: TLocale = 'ru',
 ): Promise<IChatSession | null> {
 	const current = await ChatSession.findOne({ chatId: currentChatId });
 	if (!current || !current.brief.leadComplete) {
@@ -161,6 +165,7 @@ export async function createNewChatSession(
 
 	return ChatSession.create({
 		chatId: newChatId,
+		locale,
 		fingerprintHash: fingerprint,
 		ownerFingerprint: fingerprint,
 		previousChatIds: [],

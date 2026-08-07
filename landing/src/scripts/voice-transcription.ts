@@ -1,13 +1,8 @@
 const AUDIO_FILE_NAME = 'voice-input.webm';
 
-const VOICE_ERRORS = {
-	tooShort: 'Запись слишком короткая. Попробуйте ещё раз.',
-	transcribeFailed: 'Не удалось расшифровать аудио. Попробуйте ещё раз.',
-	browserNoAudio: 'Ваш браузер не поддерживает запись аудио.',
-	browserNoMediaRecorder: 'Ваш браузер не поддерживает MediaRecorder.',
-	recordingFailed: 'Ошибка записи. Попробуйте ещё раз.',
-	noMicAccess: 'Нет доступа к микрофону. Разрешите доступ в настройках браузера.',
-} as const;
+import { getApiUrl } from '../lib/api';
+import { getVoiceMessages } from '../i18n/voice';
+import type { TLocale } from '../i18n/types';
 
 interface ITranscriptionApiResponse {
 	success: boolean;
@@ -21,7 +16,7 @@ interface IVoiceTranscriptionOptions {
 	input: HTMLInputElement;
 	micButton: HTMLButtonElement;
 	status?: HTMLElement | null;
-	language?: 'ru' | 'en';
+	language?: TLocale;
 	apiUrl?: string;
 }
 
@@ -31,9 +26,11 @@ function pickSupportedMimeType(): string {
 	return candidates.find((type) => MediaRecorder.isTypeSupported(type)) ?? '';
 }
 
-import { getApiUrl } from '../lib/api';
-
-async function transcribeAudio(formData: FormData, apiUrl: string): Promise<string> {
+async function transcribeAudio(
+	formData: FormData,
+	apiUrl: string,
+	transcribeFailed: string,
+): Promise<string> {
 	const response = await fetch(`${apiUrl}/transcriptions`, {
 		method: 'POST',
 		body: formData,
@@ -43,7 +40,7 @@ async function transcribeAudio(formData: FormData, apiUrl: string): Promise<stri
 	const payload = (await response.json()) as ITranscriptionApiResponse;
 
 	if (!response.ok || !payload.success || !payload.data?.text) {
-		throw new Error(payload.message || VOICE_ERRORS.transcribeFailed);
+		throw new Error(payload.message || transcribeFailed);
 	}
 
 	return payload.data.text;
@@ -56,6 +53,7 @@ export function initHeroVoiceInput({
 	language = 'ru',
 	apiUrl = getApiUrl(),
 }: IVoiceTranscriptionOptions): void {
+	const msgs = getVoiceMessages(language);
 	const supportedMimeType = pickSupportedMimeType();
 	let recording = false;
 	let isTranscribing = false;
@@ -109,7 +107,7 @@ export function initHeroVoiceInput({
 
 	const transcribeBlob = async (audioBlob: Blob) => {
 		if (audioBlob.size === 0) {
-			reportError(VOICE_ERRORS.tooShort);
+			reportError(msgs.tooShort);
 			return;
 		}
 
@@ -119,10 +117,10 @@ export function initHeroVoiceInput({
 
 		isTranscribing = true;
 		updateMicUi();
-		setStatus('Расшифровка...');
+		setStatus(msgs.transcribing);
 
 		try {
-			const text = await transcribeAudio(formData, apiUrl);
+			const text = await transcribeAudio(formData, apiUrl, msgs.transcribeFailed);
 			const normalized = text.trim();
 			if (!normalized || normalized === lastTranscription) {
 				clearStatus();
@@ -132,7 +130,7 @@ export function initHeroVoiceInput({
 			appendTranscript(normalized);
 			clearStatus();
 		} catch (error) {
-			reportError(error instanceof Error ? error.message : VOICE_ERRORS.transcribeFailed);
+			reportError(error instanceof Error ? error.message : msgs.transcribeFailed);
 		} finally {
 			isTranscribing = false;
 			updateMicUi();
@@ -154,17 +152,17 @@ export function initHeroVoiceInput({
 		clearStatus();
 
 		if (!navigator.mediaDevices?.getUserMedia) {
-			reportError(VOICE_ERRORS.browserNoAudio);
+			reportError(msgs.browserNoAudio);
 			return;
 		}
 		if (typeof MediaRecorder === 'undefined') {
-			reportError(VOICE_ERRORS.browserNoMediaRecorder);
+			reportError(msgs.browserNoMediaRecorder);
 			return;
 		}
 
 		recording = true;
 		updateMicUi();
-		setStatus('Подключение к микрофону...');
+		setStatus(msgs.connectingMic);
 
 		try {
 			stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -186,7 +184,7 @@ export function initHeroVoiceInput({
 
 			recorder.onerror = () => {
 				recording = false;
-				reportError(VOICE_ERRORS.recordingFailed);
+				reportError(msgs.recordingFailed);
 				releaseStream();
 				updateMicUi();
 			};
@@ -201,9 +199,9 @@ export function initHeroVoiceInput({
 			};
 
 			recorder.start(250);
-			setStatus('Идёт запись... Нажмите микрофон, чтобы остановить.');
+			setStatus(msgs.recording);
 		} catch {
-			reportError(VOICE_ERRORS.noMicAccess);
+			reportError(msgs.noMicAccess);
 			recording = false;
 			releaseStream();
 			updateMicUi();

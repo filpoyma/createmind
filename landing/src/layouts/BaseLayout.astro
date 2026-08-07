@@ -13,35 +13,46 @@ import {
 	OG_IMAGE,
 	OG_IMAGE_HEIGHT,
 	OG_IMAGE_WIDTH,
+	OG_LOCALE,
 	THEME_COLOR,
 } from '../lib/seo';
+import { getLocaleFromAstro } from '../i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
 
 const {
-	title = DEFAULT_TITLE,
-	description = DEFAULT_DESCRIPTION,
+	title = DEFAULT_TITLE[locale],
+	description = DEFAULT_DESCRIPTION[locale],
 	noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageUrl = absoluteUrl(OG_IMAGE);
-const jsonLd = buildJsonLd(description);
+const jsonLd = buildJsonLd(locale, description);
+
+const ruUrl = new URL(getRelativeLocaleUrl('ru'), Astro.site);
+const enUrl = new URL(getRelativeLocaleUrl('en'), Astro.site);
 ---
 
 <!doctype html>
-<html lang="ru">
+<html lang={locale}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
 		{noindex && <meta name="robots" content="noindex, nofollow" />}
 		<link rel="canonical" href={canonicalURL} />
+		<link rel="alternate" hreflang="ru" href={ruUrl} />
+		<link rel="alternate" hreflang="en" href={enUrl} />
+		<link rel="alternate" hreflang="x-default" href={ruUrl} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" sizes="any" />
 		<link rel="apple-touch-icon" href="/favicon.ico" />
 		<meta name="theme-color" content={THEME_COLOR} />
 
 		<meta property="og:type" content="website" />
-		<meta property="og:locale" content="ru_RU" />
+		<meta property="og:locale" content={OG_LOCALE[locale]} />
 		<meta property="og:site_name" content="CreateMind" />
 		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:title" content={title} />
@@ -91,5 +102,9 @@ const jsonLd = buildJsonLd(description);
 <style is:global>
 	@import '../styles/global.css';
 </style>
+
+<script define:vars={{ locale }}>
+	window.__LOCALE__ = locale;
+</script>
 
 <script src="../scripts/main.ts"></script>

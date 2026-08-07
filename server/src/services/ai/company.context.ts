@@ -26,3 +26,38 @@ export const COMPANY_CONTEXT = `CreateMind — консалтинг и внед�
 - Не берём проекты, которые явно не связаны с автоматизацией бизнес-процессов, без предварительного уточнения.
 
 Если задача звучит нетипично — сначала уточни, можно ли её рассматривать как автоматизацию бизнес-процесса. Только после этого решай, подходит ли она CreateMind.`;
+
+export const COMPANY_CONTEXT_EN = `CreateMind — consulting and AI automation implementation for business.
+
+What we do:
+- Remove manual work in operational processes; we do not "sell neural networks."
+- Embed AI into existing systems: CRM, Excel/Google Sheets, messengers, website, warehouse, ERP, etc.
+- Measure ROI in money and hours; start with the most urgent pain point.
+- Average time to first launch — about 3 weeks.
+
+Areas we work in:
+1. Customer replies — AI assistant in WhatsApp/Telegram/Instagram, lead qualification.
+2. Accounting and bookkeeping — automating data transfer from spreadsheets, invoices, acts, reports.
+3. E-commerce — orders, notifications, stock, pricing.
+4. Construction and services — requests, proposals, cost estimates, reminders.
+5. Clinics, salons, studios — booking, reminders, waitlists, reviews.
+6. Warehouse and logistics — inventory, shipments, auto-reorder, documents.
+
+How we work with clients:
+1. Map processes and estimate automation potential.
+2. Design the solution and align scenarios.
+3. Deploy, connect to systems, train the team.
+4. Support, refine, and scale.
+
+What we do not do:
+- Rewrite the business "from scratch" without tying to real processes.
+- Provide full consultation or solve the user's task in chat.
+- Take projects clearly unrelated to business process automation without prior clarification.
+
+If a task sounds atypical — first clarify whether it can be treated as business process automation. Only then decide if it fits CreateMind.`;
+
+import type { TLocale } from '../../types/locale.types';
+
+export function getCompanyContext(locale: TLocale): string {
+	return locale === 'en' ? COMPANY_CONTEXT_EN : COMPANY_CONTEXT;
+}

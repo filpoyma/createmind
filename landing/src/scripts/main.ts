@@ -3,11 +3,13 @@ function initContactForm() {
 	const status = document.getElementById('contact-form-status');
 	if (!form) return;
 
+	const successMessage = form.dataset.successMessage ?? '';
+
 	form.addEventListener('submit', (e) => {
 		e.preventDefault();
-		if (status) {
+		if (status && successMessage) {
 			status.classList.remove('hidden');
-			status.textContent = 'Спасибо! Мы свяжемся с вами в ближайшее время.';
+			status.textContent = successMessage;
 		}
 		form.reset();
 	});

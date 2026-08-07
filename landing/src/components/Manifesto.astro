@@ -1,22 +1,28 @@
 ---
 import { manifestoPrinciples, manifestoStats } from '../data/manifesto';
+import { useTranslations, getLocaleFromAstro } from '../i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
+const principles = manifestoPrinciples[locale];
+const stats = manifestoStats[locale];
 ---
 
 <section id="manifesto" class="relative py-24 lg:py-32 bg-[#0A0A0A] text-white">
 	<div class="max-w-7xl mx-auto px-6 lg:px-8">
 		<div class="mb-20">
 			<span class="font-display text-[11px] uppercase tracking-[0.22em] text-emerald-400">
-				Наш подход
+				{t('manifesto.label')}
 			</span>
 			<h2
 				class="mt-6 font-display font-bold uppercase tracking-tighter leading-[0.95] text-4xl md:text-5xl lg:text-6xl max-w-4xl"
 			>
 				<span class="block overflow-hidden">
-					<span class="block">Автоматизация,</span>
+					<span class="block">{t('manifesto.title.line1')}</span>
 				</span>
 				<span class="block overflow-hidden">
 					<span class="block">
-						которая <span class="text-emerald-400">окупается</span>
+						{t('manifesto.title.line2')} <span class="text-emerald-400">{t('manifesto.title.highlight')}</span>
 					</span>
 				</span>
 			</h2>
@@ -24,7 +30,7 @@ import { manifestoPrinciples, manifestoStats } from '../data/manifesto';
 
 		<div class="divide-y divide-zinc-800 border-t border-zinc-800">
 			{
-				manifestoPrinciples.map((principle) => (
+				principles.map((principle) => (
 					<div
 						class="grid md:grid-cols-12 gap-6 md:gap-8 py-12 group"
 						data-testid={`manifesto-${principle.number}`}
@@ -51,7 +57,7 @@ import { manifestoPrinciples, manifestoStats } from '../data/manifesto';
 
 		<div class="mt-24 grid grid-cols-2 lg:grid-cols-4 gap-px bg-zinc-800 border border-zinc-800">
 			{
-				manifestoStats.map((stat, index) => (
+				stats.map((stat, index) => (
 					<div class="bg-[#0A0A0A] p-8" data-testid={`stat-${index}`}>
 						<div class="font-display text-4xl md:text-5xl font-bold tracking-tighter text-emerald-400">
 							{stat.value}

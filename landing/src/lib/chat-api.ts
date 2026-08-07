@@ -1,4 +1,6 @@
 import { getApiUrl } from './api';
+import { getCurrentLang } from './lang';
+import { getChatMessages } from '../i18n/chat';
 import {
 	getOrCreateChatId,
 	getDeviceFingerprint,
@@ -74,6 +76,7 @@ async function buildVisitorHeaders(): Promise<Record<string, string>> {
 	const headers: Record<string, string> = {
 		'Content-Type': 'application/json',
 		'X-Chat-Id': chatId,
+		'X-Locale': getCurrentLang(),
 	};
 
 	if (fingerprint) {
@@ -147,8 +150,9 @@ export async function sendChatMessage(text: string): Promise<IChatSession | null
 		const payload = (await response.json()) as IApiResponse<IChatSession>;
 
 		if (!response.ok || !payload.success || !payload.data) {
+			const msgs = getChatMessages(getCurrentLang());
 			throw new ChatApiError(
-				payload.message || 'Не удалось отправить сообщение',
+				payload.message || msgs.sendFailed,
 				payload.code,
 				{ canStartNewProject: payload.canStartNewProject },
 			);
@@ -157,7 +161,7 @@ export async function sendChatMessage(text: string): Promise<IChatSession | null
 		return parseSession(payload);
 	} catch (error) {
 		if (error instanceof ChatApiError) throw error;
-		throw new ChatApiError('Не удалось отправить сообщение');
+		throw new ChatApiError(getChatMessages(getCurrentLang()).sendFailed);
 	}
 }
 
@@ -175,15 +179,16 @@ export async function restartChatSession(): Promise<IChatSession> {
 	const payload = (await response.json()) as IApiResponse<IChatSession>;
 
 	if (!response.ok || !payload.success || !payload.data) {
+		const msgs = getChatMessages(getCurrentLang());
 		throw new ChatApiError(
-			payload.message || 'Не удалось начать новую заявку',
+			payload.message || msgs.restartFailed,
 			payload.code,
 		);
 	}
 
 	const session = parseSession(payload);
 	if (!session) {
-		throw new ChatApiError('Не удалось начать новую заявку');
+		throw new ChatApiError(getChatMessages(getCurrentLang()).restartFailed);
 	}
 
 	return session;
@@ -203,7 +208,7 @@ export async function generateSpec(): Promise<ISpecResult> {
 	const payload = (await response.json()) as IApiResponse<ISpecResult>;
 
 	if (!response.ok || !payload.success || !payload.data) {
-		throw new Error(payload.message || 'Не удалось сформировать ТЗ');
+		throw new Error(payload.message || getChatMessages(getCurrentLang()).specFailed);
 	}
 
 	return payload.data;

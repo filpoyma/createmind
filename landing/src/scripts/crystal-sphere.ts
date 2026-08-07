@@ -1,4 +1,5 @@
-import { getCurrentLang, type TLang } from '../lib/lang';
+import { getCurrentLang } from '../lib/lang';
+import { getSphereMessages } from '../i18n/sphere';
 
 const ACCENT = '#10b981';
 const ACCENT_RGB = '16, 185, 129';
@@ -121,7 +122,7 @@ export function initCrystalSphere(): void {
             const ticker = document.getElementById('live-event-ticker');
             const tickerVal = document.getElementById('ticker-text-val');
             if (ticker && tickerVal) {
-                tickerVal.textContent = (getCurrentLang() === 'en') ? 'Processing request...' : 'Обрабатываю запрос...';
+                tickerVal.textContent = getSphereMessages(getCurrentLang()).processing;
                 ticker.className = 'live-event-ticker visible';
             }
         } else if (state === 'WORKSPACE') {
@@ -240,11 +241,6 @@ export function initCrystalSphere(): void {
         pulseOpacity = 0.55;
     };
 
-    const defaultSpeech: Record<TLang, string> = {
-        ru: 'Какая у вас задача для меня?',
-        en: 'What is your task for me?',
-    };
-
     let speechBubbleTimer: ReturnType<typeof setTimeout> | null = null;
 
     window.showRobotSpeech = function () {
@@ -252,9 +248,9 @@ export function initCrystalSphere(): void {
         const bubbleText = document.getElementById('bubble-text');
         if (!bubble || !bubbleText) return;
 
-        const lang = getCurrentLang();
+        const speech = getSphereMessages(getCurrentLang()).defaultSpeech;
 
-        bubbleText.textContent = defaultSpeech[lang];
+        bubbleText.textContent = speech;
         bubble.classList.add('force-show');
 
         window.setHeroState?.('PROCESSING');
@@ -265,7 +261,7 @@ export function initCrystalSphere(): void {
         if (speechBubbleTimer) clearTimeout(speechBubbleTimer);
         speechBubbleTimer = setTimeout(() => {
             bubble.classList.remove('force-show');
-            bubbleText.textContent = defaultSpeech[lang];
+            bubbleText.textContent = getSphereMessages(getCurrentLang()).defaultSpeech;
         }, 5000);
     };
 

@@ -1,12 +1,13 @@
 import logger from '../../config/logger';
 import type { IChatMessage } from '../../models/chatSession.model';
 import type { IInterviewTurn, IProjectBrief } from '../../types/interview.types';
-import { INTERVIEW_SYSTEM_PROMPT } from './interview.prompt';
+import type { TLocale } from '../../types/locale.types';
+import { getInterviewSystemPrompt } from './interview.prompt';
 import { interviewResponseSchema } from './interview.schema';
 import {
 	isTooLong,
 	limitText,
-	SHORTEN_RETRY_INSTRUCTION,
+	getShortenRetryInstruction,
 } from './messageLength';
 import {
 	createStructuredResponse,
@@ -15,7 +16,20 @@ import {
 
 const MAX_HISTORY_MESSAGES = 20;
 
-function buildBriefContext(brief: IProjectBrief): string {
+function buildBriefContext(brief: IProjectBrief, locale: TLocale): string {
+	if (locale === 'en') {
+		return [
+			'Current request state:',
+			`- stage: ${brief.stage}`,
+			`- task_summary: ${brief.taskSummary ?? 'not filled'}`,
+			`- expected_result: ${brief.expectedResult ?? 'not filled'}`,
+			`- project_type: ${brief.projectType ?? 'not filled'}`,
+			`- understanding_confirmed: ${brief.understandingConfirmed}`,
+			`- contact: ${brief.contact ?? 'not filled'}`,
+			`- lead_complete: ${brief.leadComplete}`,
+		].join('\n');
+	}
+
 	return [
 		'Текущее состояние заявки:',
 		`- stage: ${brief.stage}`,
@@ -58,12 +72,13 @@ function validateInterviewTurn(raw: IInterviewTurn): IInterviewTurn {
 async function requestInterviewTurn(
 	messages: IChatMessage[],
 	brief: IProjectBrief,
+	locale: TLocale,
 	extraInstruction?: string,
 ): Promise<IInterviewTurn> {
 	const input: TProviderMessage[] = [
 		{
 			role: 'developer',
-			content: buildBriefContext(brief),
+			content: buildBriefContext(brief, locale),
 		},
 		...toProviderMessages(messages),
 	];
@@ -76,7 +91,7 @@ async function requestInterviewTurn(
 	}
 
 	const raw = await createStructuredResponse<IInterviewTurn>({
-		instructions: INTERVIEW_SYSTEM_PROMPT,
+		instructions: getInterviewSystemPrompt(locale),
 		input,
 		schemaName: 'interview_turn',
 		schema: interviewResponseSchema,
@@ -89,8 +104,9 @@ async function requestInterviewTurn(
 export async function generateInterviewTurn(
 	messages: IChatMessage[],
 	brief: IProjectBrief,
+	locale: TLocale = 'ru',
 ): Promise<IInterviewTurn> {
-	let turn = await requestInterviewTurn(messages, brief);
+	let turn = await requestInterviewTurn(messages, brief, locale);
 
 	if (!isTooLong(turn.message)) {
 		return turn;
@@ -98,7 +114,12 @@ export async function generateInterviewTurn(
 
 	logger.warn('Interview response exceeded length limit, retrying with shorten instruction');
 
-	turn = await requestInterviewTurn(messages, brief, SHORTEN_RETRY_INSTRUCTION);
+	turn = await requestInterviewTurn(
+		messages,
+		brief,
+		locale,
+		getShortenRetryInstruction(locale),
+	);
 
 	if (!isTooLong(turn.message)) {
 		return turn;

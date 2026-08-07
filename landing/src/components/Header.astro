@@ -1,5 +1,14 @@
 ---
 import { navLinks } from '../data/site';
+import { useTranslations, getLocaleFromAstro } from '../i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
+const links = navLinks[locale];
+const homeUrl = getRelativeLocaleUrl(locale);
+const otherLocale = locale === 'ru' ? 'en' : 'ru';
+const switchHref = getRelativeLocaleUrl(otherLocale);
 ---
 
 <header
@@ -7,16 +16,16 @@ import { navLinks } from '../data/site';
 	class="fixed top-0 left-0 right-0 z-50 transition-colors duration-300 bg-[#FDFDFC]/80 backdrop-blur-xl border-b border-zinc-200"
 >
 	<div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
-		<a href="/" data-testid="brand-logo" class="flex items-center gap-2.5 group" aria-label="CreateMind — на главную">
+		<a href={homeUrl} data-testid="brand-logo" class="flex items-center gap-2.5 group" aria-label={t('nav.home')}>
 			<span
 				class="h-2.5 w-2.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform duration-300"
 			></span>
 			<span class="font-display font-bold text-lg tracking-tighter text-zinc-900">CreateMind</span>
 		</a>
 
-		<nav class="hidden md:flex items-center gap-9" aria-label="Основная навигация">
+		<nav class="hidden md:flex items-center gap-9" aria-label={t('nav.aria')}>
 			{
-				navLinks.map((link) => (
+				links.map((link) => (
 					<a
 						href={link.href}
 						data-testid={link.testId}
@@ -28,15 +37,27 @@ import { navLinks } from '../data/site';
 			}
 		</nav>
 
-		<a
-			href="#contact"
-			data-testid="nav-cta"
-			class="group relative inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden"
-		>
-			<span class="relative z-10 transition-colors duration-300">Обсудить задачу</span>
-			<span
-				class="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
-			></span>
-		</a>
+		<div class="flex items-center gap-4">
+			<a
+				href={switchHref}
+				hreflang={otherLocale}
+				data-testid="lang-switch"
+				class="text-sm font-semibold text-zinc-500 hover:text-zinc-900 transition-colors duration-200"
+				aria-label={t('lang.switch')}
+			>
+				{t('lang.switch')}
+			</a>
+
+			<a
+				href="#contact"
+				data-testid="nav-cta"
+				class="group relative inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden"
+			>
+				<span class="relative z-10 transition-colors duration-300">{t('nav.cta')}</span>
+				<span
+					class="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+				></span>
+			</a>
+		</div>
 	</div>
 </header>

@@ -2,24 +2,32 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { useTranslations, getLocaleFromAstro } from '../i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
+const homeUrl = getRelativeLocaleUrl(locale);
 ---
 
-<BaseLayout title="Страница не найдена — CreateMind" noindex>
+<BaseLayout title={`${t('404.title')} — CreateMind`} noindex>
 	<Header />
 	<main class="min-h-[60vh] flex items-center justify-center px-6 pt-32 pb-20">
 		<div class="text-center max-w-lg">
-			<p class="font-display text-sm uppercase tracking-[0.2em] text-emerald-600 mb-4">404</p>
+			<p class="font-display text-sm uppercase tracking-[0.2em] text-emerald-600 mb-4">
+				{t('404.label')}
+			</p>
 			<h1 class="font-display font-bold text-4xl md:text-5xl text-zinc-900 tracking-tight">
-				Страница не найдена
+				{t('404.title')}
 			</h1>
 			<p class="mt-4 text-lg text-zinc-600 leading-relaxed">
-				Такой страницы нет. Вернитесь на главную — там про AI-автоматизацию для бизнеса.
+				{t('404.description')}
 			</p>
 			<a
-				href="/"
+				href={homeUrl}
 				class="mt-8 inline-flex items-center rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors"
 			>
-				На главную
+				{t('404.home')}
 			</a>
 		</div>
 	</main>

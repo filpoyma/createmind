@@ -1,6 +1,11 @@
 ---
 import { useCases } from '../data/useCases';
 import Check from './icons/Check.astro';
+import { useTranslations, getLocaleFromAstro } from '../i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
+const cases = useCases[locale];
 ---
 
 <section id="use-cases" class="relative py-24 lg:py-32 border-t border-zinc-200">
@@ -10,22 +15,22 @@ import Check from './icons/Check.astro';
 				class="font-display font-bold uppercase tracking-tighter leading-[0.95] text-4xl md:text-5xl lg:text-6xl text-zinc-900"
 			>
 				<span class="block overflow-hidden">
-					<span class="block">Узнайте</span>
+					<span class="block">{t('useCases.title.line1')}</span>
 				</span>
 				<span class="block overflow-hidden">
-					<span class="block">свой бизнес</span>
+					<span class="block">{t('useCases.title.line2')}</span>
 				</span>
 			</h2>
 			<div class="max-w-md">
 				<p class="text-lg text-zinc-600 leading-relaxed">
-					Если в вашей компании есть хотя бы одно из этого - мы знаем, как это автоматизировать.
+					{t('useCases.subtitle')}
 				</p>
 			</div>
 		</div>
 
 		<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-zinc-200 border border-zinc-200">
 			{
-				useCases.map((item) => (
+				cases.map((item) => (
 					<article
 						data-testid={`usecase-${item.id}`}
 						class="group relative bg-white p-8 lg:p-9 flex flex-col hover:bg-zinc-50 transition-colors duration-300"

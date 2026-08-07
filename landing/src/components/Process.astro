@@ -1,5 +1,10 @@
 ---
 import { processSteps } from '../data/process';
+import { useTranslations, getLocaleFromAstro } from '../i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
+const steps = processSteps[locale];
 ---
 
 <section id="process" class="relative py-24 lg:py-32 border-t border-zinc-200">
@@ -9,22 +14,22 @@ import { processSteps } from '../data/process';
 				class="font-display font-bold uppercase tracking-tighter leading-[0.95] text-4xl md:text-5xl lg:text-6xl text-zinc-900"
 			>
 				<span class="block overflow-hidden">
-					<span class="block">Как мы</span>
+					<span class="block">{t('process.title.line1')}</span>
 				</span>
 				<span class="block overflow-hidden">
-					<span class="block">работаем</span>
+					<span class="block">{t('process.title.line2')}</span>
 				</span>
 			</h2>
 			<div class="max-w-md">
 				<p class="text-lg text-zinc-600 leading-relaxed">
-					Прозрачный путь от первого разговора до работающей системы. Вы видите результат на каждом шаге.
+					{t('process.subtitle')}
 				</p>
 			</div>
 		</div>
 
 		<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-zinc-200 border border-zinc-200">
 			{
-				processSteps.map((step) => (
+				steps.map((step) => (
 					<div
 						class="group bg-white p-8 lg:p-9 flex flex-col min-h-[280px] hover:bg-zinc-900 transition-colors duration-500"
 						data-testid={`process-${step.number}`}

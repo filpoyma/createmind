@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomePage from '../../components/HomePage.astro';
+import { useCases } from '../../data/useCases';
+import { SITE_URL } from '../../lib/seo';
+import { useTranslations, getLocaleFromAstro } from '../../i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
+
+const useCasesJsonLd = {
+	'@context': 'https://schema.org',
+	'@type': 'ItemList',
+	name: t('useCasesJsonLd.name'),
+	itemListElement: useCases[locale].map((item, index) => ({
+		'@type': 'ListItem',
+		position: index + 1,
+		name: item.title,
+		description: item.description,
+		url: `${SITE_URL}/en/#use-cases`,
+	})),
+};
+---
+
+<BaseLayout>
+	<script type="application/ld+json" set:html={JSON.stringify(useCasesJsonLd)} />
+	<HomePage />
+</BaseLayout>

@@ -1,11 +1,27 @@
 import { contacts } from '../data/site';
+import type { TLocale } from '../i18n/types';
 
 export const SITE_URL = 'https://createmind.org';
 
-export const DEFAULT_TITLE = 'CreateMind — AI-автоматизация для бизнеса';
+export const DEFAULT_TITLE: Record<TLocale, string> = {
+	ru: 'CreateMind — AI-автоматизация для бизнеса',
+	en: 'CreateMind — AI automation for business',
+};
 
-export const DEFAULT_DESCRIPTION =
-	'Автоматизируем процессы в вашем бизнесе с помощью искусственного интеллекта. AI-помощники, автоматизация продаж, документооборот, клиентский сервис.';
+export const DEFAULT_DESCRIPTION: Record<TLocale, string> = {
+	ru: 'Автоматизируем процессы в вашем бизнесе с помощью искусственного интеллекта. AI-помощники, автоматизация продаж, документооборот, клиентский сервис.',
+	en: 'We automate your business processes with artificial intelligence. AI assistants, sales automation, document workflows, and customer service.',
+};
+
+export const OG_LOCALE: Record<TLocale, string> = {
+	ru: 'ru_RU',
+	en: 'en_US',
+};
+
+export const HTML_LANG: Record<TLocale, string> = {
+	ru: 'ru',
+	en: 'en',
+};
 
 export const OG_IMAGE = '/images/og-image.jpg';
 export const OG_IMAGE_WIDTH = 1200;
@@ -17,7 +33,9 @@ export function absoluteUrl(path: string): string {
 	return new URL(path, SITE_URL).href;
 }
 
-export function buildJsonLd(description: string) {
+export function buildJsonLd(locale: TLocale, description: string) {
+	const isEn = locale === 'en';
+
 	return {
 		'@context': 'https://schema.org',
 		'@graph': [
@@ -36,24 +54,30 @@ export function buildJsonLd(description: string) {
 				url: SITE_URL,
 				name: 'CreateMind',
 				description,
-				inLanguage: 'ru-RU',
+				inLanguage: isEn ? 'en-US' : 'ru-RU',
 				publisher: { '@id': `${SITE_URL}/#organization` },
 			},
 			{
 				'@type': 'ProfessionalService',
 				'@id': `${SITE_URL}/#service`,
-				name: DEFAULT_TITLE,
+				name: DEFAULT_TITLE[locale],
 				url: SITE_URL,
 				description,
 				areaServed: {
 					'@type': 'Country',
-					name: 'Russia',
+					name: isEn ? 'International' : 'Russia',
 				},
-				serviceType: [
-					'AI-автоматизация',
-					'Внедрение искусственного интеллекта',
-					'Автоматизация бизнес-процессов',
-				],
+				serviceType: isEn
+					? [
+							'AI automation',
+							'Artificial intelligence implementation',
+							'Business process automation',
+						]
+					: [
+							'AI-автоматизация',
+							'Внедрение искусственного интеллекта',
+							'Автоматизация бизнес-процессов',
+						],
 				provider: { '@id': `${SITE_URL}/#organization` },
 			},
 		],

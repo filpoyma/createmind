@@ -11,19 +11,12 @@ import {
 	type TChatRole,
 } from '../lib/chat-api';
 import { getOrCreateChatId, initVisitorSession } from '../lib/visitor';
+import { getChatMessages } from '../i18n/chat';
+import { getCurrentLang } from '../lib/lang';
 
-const EXPAND_DURATION_MS = 520;
-const EXPAND_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
-const SHELL_BASE_CLASS = 'hero-chat-shell mt-10 mx-auto lg:mx-0 max-w-xl w-full';
-const LEAD_COMPLETE_MESSAGE =
-	'Эта заявка уже завершена — мы собрали все данные по текущему проекту. Если у вас новая задача, начните отдельную заявку: история чата обнулится. ТЗ по текущему проекту можно скачать по кнопке «Скачать ТЗ» справа вверху чата.';
-const LEAD_COMPLETE_LIMIT_MESSAGE =
-	'Эта заявка уже завершена. Вы достигли лимита в 3 проекта. ТЗ по текущему проекту можно скачать по кнопке «Скачать ТЗ» справа вверху чата.';
-const PROJECT_LIMIT_MESSAGE =
-	'Достигнут лимит: один пользователь может оформить не более 3 проектов.';
-const SPEC_DOWNLOAD_FOOTER =
-	'\n\n—\nСкачать файл можно по кнопке «Скачать ТЗ» справа вверху чата.';
-const SPEC_GENERATING_MESSAGE = 'Формирую ТЗ...';
+function chatMsg() {
+	return getChatMessages(getCurrentLang());
+}
 
 let chatExpanded = false;
 let isAnimating = false;
@@ -33,6 +26,10 @@ let collapsedTargetRect: DOMRect | null = null;
 let currentSession: IChatSession | null = null;
 let cachedSpec: ISpecResult | null = null;
 let specShownForChatId: string | null = null;
+
+const EXPAND_DURATION_MS = 520;
+const EXPAND_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
+const SHELL_BASE_CLASS = 'hero-chat-shell mt-10 mx-auto lg:mx-0 max-w-xl w-full';
 
 function ensureChatSession(): Promise<IChatSession | null> {
 	if (!sessionPromise) {
@@ -66,7 +63,7 @@ function appendSpecMessage(messagesEl: HTMLElement, specText: string) {
 	const message = document.createElement('div');
 	message.className =
 		'hero-chat-message hero-chat-message--assistant hero-chat-message--spec';
-	message.textContent = `${specText}${SPEC_DOWNLOAD_FOOTER}`;
+	message.textContent = `${specText}${chatMsg().specDownloadFooter}`;
 	messagesEl.appendChild(message);
 	messagesEl.scrollTop = messagesEl.scrollHeight;
 }
@@ -84,7 +81,7 @@ async function maybeGenerateAndShowSpec(
 	let statusMessage: Element | null = null;
 
 	if (showGeneratingStatus) {
-		appendMessage(messagesEl, 'assistant', SPEC_GENERATING_MESSAGE);
+		appendMessage(messagesEl, 'assistant', chatMsg().specGenerating);
 		statusMessage = messagesEl.lastElementChild;
 	}
 
@@ -99,9 +96,9 @@ async function maybeGenerateAndShowSpec(
 		updateDownloadButton(currentSession);
 	} catch {
 		if (statusMessage instanceof HTMLElement) {
-			statusMessage.textContent = 'Не удалось сформировать ТЗ. Попробуйте ещё раз.';
+			statusMessage.textContent = chatMsg().specFailed;
 		} else {
-			appendErrorMessage(messagesEl, 'Не удалось сформировать ТЗ. Попробуйте ещё раз.');
+			appendErrorMessage(messagesEl, chatMsg().specFailed);
 		}
 	}
 }
@@ -190,7 +187,7 @@ function showLeadCompletePrompt(
 	appendMessage(
 		messagesEl,
 		'assistant',
-		canStartNewProject ? LEAD_COMPLETE_MESSAGE : LEAD_COMPLETE_LIMIT_MESSAGE,
+		canStartNewProject ? chatMsg().leadComplete : chatMsg().leadCompleteLimit,
 	);
 
 	if (!canStartNewProject) {
@@ -204,7 +201,7 @@ function showLeadCompletePrompt(
 	const restartButton = document.createElement('button');
 	restartButton.type = 'button';
 	restartButton.className = 'hero-chat-restart-btn';
-	restartButton.textContent = 'Начать новую заявку';
+	restartButton.textContent = chatMsg().restartButton;
 	restartButton.addEventListener('click', () => {
 		void handleStartNewApplication(messagesEl, pendingMessage);
 	});
@@ -248,14 +245,11 @@ async function handleStartNewApplication(
 		typing.remove();
 
 		if (error instanceof ChatApiError && error.code === 'PROJECT_LIMIT_REACHED') {
-			appendErrorMessage(messagesEl, error.message || PROJECT_LIMIT_MESSAGE);
+			appendErrorMessage(messagesEl, error.message || chatMsg().projectLimit);
 			return;
 		}
 
-		appendErrorMessage(
-			messagesEl,
-			'Не удалось начать новую заявку. Попробуйте ещё раз.',
-		);
+		appendErrorMessage(messagesEl, chatMsg().restartFailed);
 	} finally {
 		isReplying = false;
 		updateDownloadButton(currentSession);
@@ -278,10 +272,7 @@ async function requestAssistantReply(
 		typing.remove();
 
 		if (!session) {
-			appendErrorMessage(
-				messagesEl,
-				'Не удалось получить ответ. Проверьте соединение и попробуйте ещё раз.',
-			);
+			appendErrorMessage(messagesEl, chatMsg().replyFailed);
 			return;
 		}
 
@@ -313,10 +304,7 @@ async function requestAssistantReply(
 			return;
 		}
 
-		appendErrorMessage(
-			messagesEl,
-			'Не удалось получить ответ AI. Попробуйте ещё раз через несколько секунд.',
-		);
+		appendErrorMessage(messagesEl, chatMsg().aiReplyFailed);
 	} finally {
 		isReplying = false;
 		updateDownloadButton(currentSession);

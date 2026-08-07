@@ -26,6 +26,7 @@ import {
 	saveProjectSpec,
 	toSessionResponse,
 } from '../services/projectBrief.service';
+import { getSessionLocale, parseLocale } from '../types/locale.types';
 
 interface IResolveSessionBody {
 	chatId?: string;
@@ -67,6 +68,10 @@ function getChatIdFromRequest(req: Request): string | undefined {
 	}
 
 	return undefined;
+}
+
+function getLocaleFromRequest(req: Request) {
+	return parseLocale(req.header('X-Locale') ?? undefined);
 }
 
 async function buildSessionPayload(session: IChatSession, restored = false) {
@@ -168,7 +173,11 @@ export const resolveChatSession = asyncHandler(
 		const fingerprint = getFingerprintFromRequest(req);
 
 		try {
-			const { session, restored } = await resolveOrCreateSession(chatId, fingerprint);
+			const { session, restored } = await resolveOrCreateSession(
+				chatId,
+				fingerprint,
+				getLocaleFromRequest(req),
+			);
 
 			res.status(HTTP_STATUS.OK).json({
 				success: true,
@@ -215,7 +224,11 @@ export const sendChatMessage = asyncHandler(
 		let session = await findSessionByChatId(chatId, fingerprint);
 		if (!session) {
 			try {
-				const resolved = await resolveOrCreateSession(chatId, fingerprint);
+				const resolved = await resolveOrCreateSession(
+					chatId,
+					fingerprint,
+					getLocaleFromRequest(req),
+				);
 				session = resolved.session;
 			} catch (error) {
 				if (error instanceof ProjectLimitReachedError) {
@@ -260,15 +273,20 @@ export const sendChatMessage = asyncHandler(
 		await session.save();
 
 		try {
-			const turn = await generateInterviewTurn(session.messages, {
-				taskSummary: session.brief.taskSummary,
-				expectedResult: session.brief.expectedResult,
-				projectType: session.brief.projectType,
-				contact: session.brief.contact,
-				understandingConfirmed: session.brief.understandingConfirmed,
-				leadComplete: session.brief.leadComplete,
-				stage: session.brief.stage,
-			});
+			const sessionLocale = getSessionLocale(session);
+			const turn = await generateInterviewTurn(
+				session.messages,
+				{
+					taskSummary: session.brief.taskSummary,
+					expectedResult: session.brief.expectedResult,
+					projectType: session.brief.projectType,
+					contact: session.brief.contact,
+					understandingConfirmed: session.brief.understandingConfirmed,
+					leadComplete: session.brief.leadComplete,
+					stage: session.brief.stage,
+				},
+				sessionLocale,
+			);
 
 			applyInterviewTurn(session, turn);
 			await session.save();
@@ -359,8 +377,9 @@ export const generateChatSpec = asyncHandler(
 		}
 
 		try {
-			const specJson = await generateProjectSpec(session.messages, brief);
-			const specText = renderSpecText(specJson);
+			const sessionLocale = getSessionLocale(session);
+			const specJson = await generateProjectSpec(session.messages, brief, sessionLocale);
+			const specText = renderSpecText(specJson, sessionLocale);
 			const generatedAt = new Date();
 
 			saveProjectSpec(session, {
@@ -409,7 +428,11 @@ export const restartChatSession = asyncHandler(
 		const fingerprint = getFingerprintFromRequest(req);
 
 		try {
-			const session = await createNewChatSession(chatId, fingerprint);
+			const session = await createNewChatSession(
+				chatId,
+				fingerprint,
+				getLocaleFromRequest(req),
+			);
 
 			if (!session) {
 				res.status(HTTP_STATUS.CONFLICT).json({

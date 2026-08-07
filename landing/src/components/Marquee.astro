@@ -1,7 +1,10 @@
 ---
 import { marqueeItems } from '../data/site';
+import { getLocaleFromAstro } from '../i18n';
 
-const items = [...marqueeItems, ...marqueeItems];
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const sourceItems = marqueeItems[locale];
+const items = [...sourceItems, ...sourceItems];
 ---
 
 <div
@@ -13,7 +16,7 @@ const items = [...marqueeItems, ...marqueeItems];
 			items.map((item, i) => (
 				<span
 					class="inline-flex items-center gap-8 px-8 font-display text-sm sm:text-base font-semibold uppercase tracking-[0.2em] text-zinc-400"
-					aria-hidden={i >= marqueeItems.length ? 'true' : undefined}
+					aria-hidden={i >= sourceItems.length ? 'true' : undefined}
 				>
 					{item}
 					<span class="text-emerald-500">•</span>

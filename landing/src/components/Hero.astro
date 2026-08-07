@@ -1,4 +1,10 @@
 ---
+import { useTranslations, getLocaleFromAstro } from '../i18n';
+import { getSphereMessages } from '../i18n/sphere';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
+const sphere = getSphereMessages(locale);
 ---
 
 <section id="hero" class="hero-section relative pt-24 pb-16 lg:pt-28 lg:pb-24 overflow-hidden">
@@ -9,32 +15,32 @@
 					<div class="min-w-0 w-full max-w-xl lg:max-w-none">
 						<div class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-zinc-600 mb-8">
 							<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-							AI-автоматизация для бизнеса
+							{t('hero.badge')}
 						</div>
 
 						<h1
 							class="font-display font-bold uppercase tracking-tighter leading-[0.94] text-[12vw] sm:text-6xl lg:text-[4.3vw] text-zinc-900"
 						>
-							<span class="block">AI-автоматизация</span>
-							<span class="block">для <span class="text-emerald-500">бизнеса</span></span>
+							<span class="block">{t('hero.title.line1')}</span>
+							<span class="block">{t('hero.title.line2')} <span class="text-emerald-500">{t('hero.title.highlight')}</span></span>
 						</h1>
 
 						<p
 							class="mt-6 font-display font-bold uppercase tracking-tighter leading-[0.94] text-2xl sm:text-3xl lg:text-[2vw] text-zinc-500"
 						>
-							Ваш бизнес работает на <span class="text-emerald-500">ручном труде.</span> Пора это изменить.
+							{t('hero.subtitle.prefix')} <span class="text-emerald-500">{t('hero.subtitle.highlight')}</span> {t('hero.subtitle.suffix')}
 						</p>
 
 						<p class="mt-8 max-w-xl text-base sm:text-lg text-zinc-600 leading-relaxed">
-							Внедряем искусственный интеллект в реальные процессы компаний — от ответов клиентам до бухгалтерии и склада. Без переписывания всего с нуля.
+							{t('hero.description')}
 						</p>
 					</div>
 
 					<div class="sphere-wrapper-col mx-auto lg:mx-0 lg:justify-self-end w-full max-w-[300px] lg:h-full">
 						<div class="sphere-stage">
-							<div id="sphere-trigger" aria-label="AI-помощник CreateMind">
+							<div id="sphere-trigger" aria-label={t('hero.sphere.aria')}>
 								<div class="robot-speech-bubble" id="robot-bubble">
-									<span id="bubble-text">Какая у вас задача для меня?</span>
+									<span id="bubble-text">{sphere.defaultSpeech}</span>
 								</div>
 								<canvas id="crystal-canvas"></canvas>
 								<div id="sphere-glow-ring"></div>
@@ -43,7 +49,7 @@
 						<div class="hero-stat-card mt-4 lg:mt-0 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 w-full">
 							<div class="font-display text-3xl sm:text-4xl font-bold text-zinc-900">24/7</div>
 							<p class="mt-2 text-sm text-zinc-600 leading-relaxed">
-								процессы идут без выходных, обедов и человеческого фактора
+								{t('hero.stat.label')}
 							</p>
 						</div>
 					</div>
@@ -59,7 +65,7 @@
 						type="button"
 						id="hero-chat-minimize"
 						class="hero-chat-minimize"
-						aria-label="Свернуть чат"
+						aria-label={t('hero.chat.minimize')}
 					>
 						<span class="hero-chat-traffic-light" aria-hidden="true"></span>
 					</button>
@@ -69,7 +75,7 @@
 						class="hero-chat-download-btn"
 						hidden
 					>
-						Скачать ТЗ
+						{t('hero.chat.download')}
 					</button>
 				</div>
 
@@ -91,7 +97,7 @@
 							type="button"
 							id="hero-mic-btn"
 							class="hero-mic-btn grid place-items-center h-10 w-10 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-							aria-label="Голосовой ввод"
+							aria-label={t('hero.input.mic')}
 							aria-pressed="false"
 							aria-busy="false"
 						>
@@ -105,7 +111,7 @@
 							data-testid="hero-task-input"
 							id="hero-input"
 							type="text"
-							placeholder="Опишите вашу задачу..."
+							placeholder={t('hero.input.placeholder')}
 							class="flex-1 bg-transparent outline-none text-zinc-900 placeholder:text-zinc-400 text-base min-w-0"
 						/>
 						<button
@@ -113,7 +119,7 @@
 							id="hero-submit"
 							type="button"
 							class="group grid place-items-center h-11 w-11 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition-colors shrink-0"
-							aria-label="Отправить"
+							aria-label={t('hero.input.send')}
 						>
 							<svg
 								width="18"

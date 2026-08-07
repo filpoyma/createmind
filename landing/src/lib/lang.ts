@@ -1,34 +1,16 @@
-export type TLang = 'ru' | 'en';
+import type { TLocale } from '../i18n/types';
 
-const STORAGE_KEY = 'preferred-lang';
+export type TLang = TLocale;
 
-function detectBrowserLang(): TLang {
-	const languages = navigator.languages || [navigator.language || 'en'];
-	const isRussian = languages.some((language) =>
-		language.toLowerCase().startsWith('ru'),
-	);
-	return isRussian ? 'ru' : 'en';
-}
-
-export function getStoredLang(): TLang {
-	const stored = localStorage.getItem(STORAGE_KEY);
-	if (stored === 'ru' || stored === 'en') return stored;
-	return detectBrowserLang();
-}
-
-export function getCurrentLang(): TLang {
-	return (window.currentLang as TLang | undefined) ?? getStoredLang();
-}
-
-export function setCurrentLang(lang: TLang): void {
-	window.currentLang = lang;
-	localStorage.setItem(STORAGE_KEY, lang);
-	document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+export function getCurrentLang(): TLocale {
+	const win = window as Window & { __LOCALE__?: TLocale };
+	return win.__LOCALE__ ?? 'ru';
 }
 
 declare global {
 	interface Window {
-		currentLang?: TLang;
+		__LOCALE__?: TLocale;
+		currentLang?: TLocale;
 		currentHeroState?: string;
 		setHeroState?: (state: string) => void;
 		showRobotSpeech?: (type: string) => void;

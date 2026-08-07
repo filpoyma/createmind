@@ -1,4 +1,5 @@
 import { submitHeroChat, initHeroChat } from "./hero-chat";
+import { getCurrentLang } from "../lib/lang";
 
 const DESKTOP_MEDIA_QUERY = "(min-width: 1024px)";
 const PROMPT_ANIMATION_NAME = "hero-input-prompt-glow";
@@ -120,6 +121,7 @@ async function initHeroVoice() {
     input: heroInput,
     micButton,
     status: voiceStatus,
+    language: getCurrentLang(),
   });
 
   heroInput.addEventListener("input", () => {

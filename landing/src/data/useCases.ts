@@ -1,3 +1,5 @@
+import type { TLocale } from '../i18n/types';
+
 export interface IUseCase {
 	id: string;
 	title: string;
@@ -9,7 +11,7 @@ export interface IUseCase {
 	imageHeight: number;
 }
 
-export const useCases: IUseCase[] = [
+const useCasesRu: IUseCase[] = [
 	{
 		id: 'answers',
 		title: 'Ответы клиентам',
@@ -77,3 +79,77 @@ export const useCases: IUseCase[] = [
 		imageHeight: 448,
 	},
 ];
+
+const useCasesEn: IUseCase[] = [
+	{
+		id: 'answers',
+		title: 'Customer replies',
+		description:
+			'Managers spend hours on the same questions in WhatsApp, Telegram, and Instagram. An AI assistant replies instantly, qualifies leads, and hands off only hot prospects.',
+		badge: 'Save 4–6 manager hours per day',
+		image: '/images/usecase-answers.jpg',
+		imageAlt: 'AI automation for customer replies in messengers',
+		imageWidth: 800,
+		imageHeight: 1202,
+	},
+	{
+		id: 'accounting',
+		title: 'Accounting and spreadsheets',
+		description:
+			'If you track sales, payments, or inventory in spreadsheets — AI moves it into an automated system. Invoices, acts, and reports are generated without copying numbers.',
+		badge: 'No manual entry — no errors',
+		image: '/images/usecase-accounting.jpg',
+		imageAlt: 'Accounting and spreadsheet automation',
+		imageWidth: 800,
+		imageHeight: 448,
+	},
+	{
+		id: 'ecommerce',
+		title: 'E-commerce and online retail',
+		description:
+			'Order processing, buyer notifications, stock and price updates — all run automatically. A manager steps in only when something is non-standard.',
+		badge: 'Orders processed around the clock',
+		image: '/images/usecase-ecommerce.jpg',
+		imageAlt: 'AI automation for online store order processing',
+		imageWidth: 800,
+		imageHeight: 753,
+	},
+	{
+		id: 'construction',
+		title: 'Construction and service business',
+		description:
+			'Requests, cost estimates, proposal delivery, meeting reminders — AI handles this in seconds. Foremen and managers do the work, not calls and paperwork.',
+		badge: 'Proposal sent within 2 minutes of inquiry',
+		image: '/images/usecase-construction.jpg',
+		imageAlt: 'Automation for requests and proposals in construction',
+		imageWidth: 369,
+		imageHeight: 247,
+	},
+	{
+		id: 'clinics',
+		title: 'Clinics, salons, and studios',
+		description:
+			'Booking via bot, day-before reminders, waitlists, review collection — without a receptionist on the phone. Clients pick a time and get confirmation themselves.',
+		badge: '−30% missed appointments',
+		image: '/images/usecase-clinics.jpg',
+		imageAlt: 'AI bot for clinic, salon, and studio booking',
+		imageWidth: 800,
+		imageHeight: 1422,
+	},
+	{
+		id: 'warehouse',
+		title: 'Warehouse and logistics',
+		description:
+			'Inventory, shipment tracking, auto-reorder on low stock, invoices and documents — generated automatically without manual control of every line item.',
+		badge: 'Stock mismatches cut by 80%',
+		image: '/images/usecase-warehouse.jpg',
+		imageAlt: 'Warehouse, inventory, and logistics automation',
+		imageWidth: 800,
+		imageHeight: 448,
+	},
+];
+
+export const useCases: Record<TLocale, IUseCase[]> = {
+	ru: useCasesRu,
+	en: useCasesEn,
+};

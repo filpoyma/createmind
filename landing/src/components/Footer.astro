@@ -1,6 +1,10 @@
 ---
 import { contacts } from '../data/site';
 import ArrowUpRight from './icons/ArrowUpRight.astro';
+import { useTranslations, getLocaleFromAstro } from '../i18n';
+
+const locale = getLocaleFromAstro(Astro.currentLocale);
+const t = useTranslations(locale);
 ---
 
 <footer data-testid="footer" class="relative bg-[#0A0A0A] text-white pt-20 pb-10 overflow-hidden">
@@ -12,7 +16,7 @@ import ArrowUpRight from './icons/ArrowUpRight.astro';
 					<span class="font-display font-bold text-lg tracking-tighter">CreateMind</span>
 				</div>
 				<p class="max-w-sm text-zinc-400 leading-relaxed">
-					Команда разработчиков, которая внедряет искусственный интеллект в реальные бизнес-процессы.
+					{t('footer.description')}
 				</p>
 			</div>
 			<div class="flex flex-col gap-3">
@@ -45,7 +49,7 @@ import ArrowUpRight from './icons/ArrowUpRight.astro';
 			id="footer-logo"
 			data-testid="footer-logo"
 			class="block w-full mt-14 text-left"
-			aria-label="Наверх"
+			aria-label={t('footer.scrollTop')}
 		>
 			<span
 				class="font-display font-bold uppercase tracking-tighter leading-none text-[15.5vw] text-white hover:text-emerald-400 transition-colors duration-500 block"
@@ -55,10 +59,10 @@ import ArrowUpRight from './icons/ArrowUpRight.astro';
 		</button>
 
 		<div class="mt-10 flex flex-col sm:flex-row justify-between gap-4 text-sm text-zinc-500">
-			<span>© 2026 CreateMind. Все права защищены.</span>
+			<span>{t('footer.copyright')}</span>
 			<span>
-				AI-автоматизация для бизнеса ·
-				<span class="text-zinc-600">Для сохранения истории чата используется анонимный ID и цифровой отпечаток браузера</span>
+				{t('footer.tagline')} ·
+				<span class="text-zinc-600">{t('footer.privacy')}</span>
 			</span>
 		</div>
 	</div>

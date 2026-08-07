@@ -1,5 +1,6 @@
 import { Schema, model, type Document } from 'mongoose';
 import type { TInterviewStage } from '../types/interview.types';
+import type { TLocale } from '../types/locale.types';
 
 export type TChatRole = 'user' | 'assistant';
 
@@ -27,6 +28,7 @@ export interface IProjectSpecDoc {
 
 export interface IChatSession extends Document {
 	chatId: string;
+	locale: TLocale;
 	fingerprintHash?: string;
 	ownerFingerprint?: string;
 	previousChatIds: string[];
@@ -93,6 +95,11 @@ const chatSessionSchema = new Schema<IChatSession>(
 			required: true,
 			unique: true,
 			index: true,
+		},
+		locale: {
+			type: String,
+			enum: ['ru', 'en'],
+			default: 'ru',
 		},
 		fingerprintHash: {
 			type: String,
