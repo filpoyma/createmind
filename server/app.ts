@@ -14,13 +14,18 @@ import corsOptions from './src/config/cors';
 
 const app: Express = express();
 
+app.set('trust proxy', 1);
+
 helmetMiddleware(app);
 compressionMiddleware(app);
+
 app.use(requestId);
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 mongoSanitizeMiddleware(app);
+
 app.use(generalRateLimiter);
 app.use(requestLogger);
 
