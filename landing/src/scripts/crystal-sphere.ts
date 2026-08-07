@@ -88,7 +88,6 @@ export function initCrystalSphere(): void {
         if (window.currentHeroState === state) return;
         const oldState = window.currentHeroState;
         window.currentHeroState = state;
-        console.log(`[HeroState] Transition: ${oldState} -> ${state}`);
 
         // 1. Очистка предыдущего состояния
         if (oldState === 'CINEMATIC') {

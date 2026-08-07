@@ -78,6 +78,11 @@ export function initHeroVoiceInput({
 		status.classList.add('hidden');
 	};
 
+	const clearError = () => {
+		if (!status?.classList.contains('text-red-600')) return;
+		clearStatus();
+	};
+
 	const reportError = (message: string) => {
 		setStatus(message, true);
 	};
@@ -146,6 +151,8 @@ export function initHeroVoiceInput({
 	};
 
 	const startRecording = async () => {
+		clearStatus();
+
 		if (!navigator.mediaDevices?.getUserMedia) {
 			reportError(VOICE_ERRORS.browserNoAudio);
 			return;
@@ -210,6 +217,15 @@ export function initHeroVoiceInput({
 		} else {
 			void startRecording();
 		}
+	});
+
+	input.addEventListener('input', clearError);
+	input.addEventListener('focus', clearError);
+
+	const submitButton = document.getElementById('hero-submit');
+	submitButton?.addEventListener('click', clearError);
+	input.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter') clearError();
 	});
 
 	window.addEventListener('beforeunload', () => {
