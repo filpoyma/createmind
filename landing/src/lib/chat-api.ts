@@ -209,25 +209,14 @@ export async function generateSpec(): Promise<ISpecResult> {
 	return payload.data;
 }
 
-export function downloadSpec(text: string, json: Record<string, unknown>, chatId: string) {
+export function downloadSpec(text: string, chatId: string) {
 	const textBlob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-	const jsonBlob = new Blob([JSON.stringify(json, null, 2)], {
-		type: 'application/json;charset=utf-8',
-	});
-
 	const textUrl = URL.createObjectURL(textBlob);
-	const jsonUrl = URL.createObjectURL(jsonBlob);
 
 	const textLink = document.createElement('a');
 	textLink.href = textUrl;
 	textLink.download = `createmind-spec-${chatId}.txt`;
 	textLink.click();
 
-	const jsonLink = document.createElement('a');
-	jsonLink.href = jsonUrl;
-	jsonLink.download = `createmind-spec-${chatId}.json`;
-	jsonLink.click();
-
 	URL.revokeObjectURL(textUrl);
-	URL.revokeObjectURL(jsonUrl);
 }

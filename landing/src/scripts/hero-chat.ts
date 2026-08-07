@@ -108,7 +108,7 @@ async function maybeGenerateAndShowSpec(
 
 function handleDownloadSpec() {
 	if (!cachedSpec) return;
-	downloadSpec(cachedSpec.text, cachedSpec.json, getOrCreateChatId());
+	downloadSpec(cachedSpec.text, getOrCreateChatId());
 }
 
 function getShellTransition(): string {
