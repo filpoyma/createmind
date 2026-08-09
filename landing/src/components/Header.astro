@@ -42,7 +42,7 @@ const switchHref = getRelativeLocaleUrl(otherLocale);
 				href={switchHref}
 				hreflang={otherLocale}
 				data-testid="lang-switch"
-				class="text-sm font-semibold text-zinc-500 hover:text-zinc-900 transition-colors duration-200"
+				class="ml-4 md:ml-8 text-sm font-semibold text-zinc-500 hover:text-zinc-900 transition-colors duration-200"
 				aria-label={t('lang.switch')}
 			>
 				{t('lang.switch')}
@@ -51,9 +51,9 @@ const switchHref = getRelativeLocaleUrl(otherLocale);
 			<a
 				href="#contact"
 				data-testid="nav-cta"
-				class="group relative inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden"
+				class="group relative inline-flex items-center justify-center rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden text-center"
 			>
-				<span class="relative z-10 transition-colors duration-300">{t('nav.cta')}</span>
+				<span class="relative z-10 w-full text-center transition-colors duration-300">{t('nav.cta')}</span>
 				<span
 					class="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
 				></span>
