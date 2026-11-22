@@ -4,7 +4,8 @@ import type {
 	IProjectSpecJson,
 } from '../../types/interview.types';
 import type { TLocale } from '../../types/locale.types';
-import { createStructuredResponse } from './openai.provider';
+import { openRouterConfig } from '../../config/openrouter';
+import { createStructuredResponse } from './openrouter.provider';
 import { getSpecSystemPrompt } from './spec.prompt';
 import { specResponseSchema } from './spec.schema';
 
@@ -105,6 +106,6 @@ export async function generateProjectSpec(
 		input: [{ role: 'user', content: briefContext }],
 		schemaName: 'project_spec',
 		schema: specResponseSchema,
-		maxOutputTokens: 2000,
+		maxOutputTokens: openRouterConfig.specMaxOutputTokens,
 	});
 }

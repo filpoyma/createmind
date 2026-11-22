@@ -4,7 +4,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { validate } from '../middleware/validator';
 import { HTTP_STATUS } from '../constants/status.constants';
 import { ProjectLimitReachedError } from '../constants/chat.limits';
-import { isOpenAiConfigured } from '../config/openai';
+import { isOpenRouterConfigured } from '../config/openrouter';
 import type { IChatSession } from '../models/chatSession.model';
 import {
 	createNewChatSession,
@@ -16,7 +16,7 @@ import {
 } from '../services/chatSession.service';
 import { generateInterviewTurn } from '../services/ai/interview.service';
 import { generateProjectSpec, renderSpecText } from '../services/ai/spec.service';
-import { AiProviderError } from '../services/ai/openai.provider';
+import { AiProviderError } from '../services/ai/openrouter.provider';
 import { sendProjectSpecEmail } from '../services/email/specEmail.service';
 import { sendProjectSpecTelegram } from '../services/telegram/specTelegram.service';
 import {
@@ -200,7 +200,7 @@ export const resolveChatSession = asyncHandler(
 
 export const sendChatMessage = asyncHandler(
 	async (req: Request, res: Response): Promise<void> => {
-		if (!isOpenAiConfigured) {
+		if (!isOpenRouterConfigured) {
 			res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
 				success: false,
 				message: 'AI-сервис не настроен',
@@ -311,7 +311,7 @@ export const sendChatMessage = asyncHandler(
 
 export const generateChatSpec = asyncHandler(
 	async (req: Request, res: Response): Promise<void> => {
-		if (!isOpenAiConfigured) {
+		if (!isOpenRouterConfigured) {
 			res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
 				success: false,
 				message: 'AI-сервис не настроен',

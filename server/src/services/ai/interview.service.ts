@@ -1,4 +1,5 @@
 import logger from '../../config/logger';
+import { openRouterConfig } from '../../config/openrouter';
 import type { IChatMessage } from '../../models/chatSession.model';
 import type { IInterviewTurn, IProjectBrief } from '../../types/interview.types';
 import type { TLocale } from '../../types/locale.types';
@@ -12,7 +13,7 @@ import {
 import {
 	createStructuredResponse,
 	type TProviderMessage,
-} from './openai.provider';
+} from './openrouter.provider';
 
 const MAX_HISTORY_MESSAGES = 20;
 
@@ -95,7 +96,7 @@ async function requestInterviewTurn(
 		input,
 		schemaName: 'interview_turn',
 		schema: interviewResponseSchema,
-		maxOutputTokens: 250,
+		maxOutputTokens: openRouterConfig.interviewMaxOutputTokens,
 	});
 
 	return validateInterviewTurn(raw);
