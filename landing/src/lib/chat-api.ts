@@ -221,7 +221,7 @@ export function downloadSpec(text: string, chatId: string) {
 
 	const textLink = document.createElement('a');
 	textLink.href = textUrl;
-	textLink.download = `createmind-spec-${chatId}.txt`;
+	textLink.download = `createmind-spec-${chatId}.md`;
 	textLink.click();
 
 	URL.revokeObjectURL(textUrl);
