@@ -15,7 +15,10 @@ import {
 	resolveOrCreateSession,
 } from '../services/chatSession.service';
 import { generateInterviewTurn } from '../services/ai/interview.service';
-import { generateProjectSpec, renderSpecText } from '../services/ai/spec.service';
+import {
+	generateProjectSpecWithRetry,
+	renderSpecText,
+} from '../services/ai/spec.service';
 import { AiProviderError } from '../services/ai/openrouter.provider';
 import { sendProjectSpecEmail } from '../services/email/specEmail.service';
 import { sendProjectSpecTelegram } from '../services/telegram/specTelegram.service';
@@ -378,7 +381,11 @@ export const generateChatSpec = asyncHandler(
 
 		try {
 			const sessionLocale = getSessionLocale(session);
-			const specJson = await generateProjectSpec(session.messages, brief, sessionLocale);
+			const specJson = await generateProjectSpecWithRetry(
+				session.messages,
+				brief,
+				sessionLocale,
+			);
 			const specText = renderSpecText(specJson, sessionLocale);
 			const generatedAt = new Date();
 

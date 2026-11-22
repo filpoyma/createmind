@@ -4,8 +4,13 @@ import type {
 	IProjectSpecJson,
 } from '../../types/interview.types';
 import type { TLocale } from '../../types/locale.types';
+import logger from '../../config/logger';
 import { openRouterConfig } from '../../config/openrouter';
-import { createStructuredResponse } from './openrouter.provider';
+import {
+	AiProviderError,
+	createStructuredResponse,
+	type TAiProviderErrorCode,
+} from './openrouter.provider';
 import { getSpecSystemPrompt } from './spec.prompt';
 import { specResponseSchema } from './spec.schema';
 
@@ -108,4 +113,48 @@ export async function generateProjectSpec(
 		schema: specResponseSchema,
 		maxOutputTokens: openRouterConfig.specMaxOutputTokens,
 	});
+}
+
+const SPEC_MAX_ATTEMPTS = 2;
+const SPEC_RETRY_DELAY_MS = 2000;
+
+const RETRYABLE_AI_ERROR_CODES: ReadonlySet<TAiProviderErrorCode> = new Set([
+	'api_error',
+	'incomplete',
+	'parse_error',
+]);
+
+function isRetryableAiError(error: unknown): error is AiProviderError {
+	return (
+		error instanceof AiProviderError && RETRYABLE_AI_ERROR_CODES.has(error.code)
+	);
+}
+
+function delay(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function generateProjectSpecWithRetry(
+	messages: IChatMessage[],
+	brief: IProjectBrief,
+	locale: TLocale = 'ru',
+): Promise<IProjectSpecJson> {
+	for (let attempt = 1; attempt <= SPEC_MAX_ATTEMPTS; attempt++) {
+		try {
+			return await generateProjectSpec(messages, brief, locale);
+		} catch (error) {
+			const canRetry = isRetryableAiError(error) && attempt < SPEC_MAX_ATTEMPTS;
+			if (!canRetry) {
+				throw error;
+			}
+
+			logger.warn(
+				`Project spec generation failed (attempt ${attempt}/${SPEC_MAX_ATTEMPTS}), retrying`,
+				{ code: error.code },
+			);
+			await delay(SPEC_RETRY_DELAY_MS);
+		}
+	}
+
+	throw new Error('Project spec generation failed after retries');
 }

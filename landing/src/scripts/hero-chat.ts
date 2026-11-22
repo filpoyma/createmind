@@ -21,6 +21,7 @@ function chatMsg() {
 let chatExpanded = false;
 let isAnimating = false;
 let isReplying = false;
+let isGeneratingSpec = false;
 let sessionPromise: Promise<IChatSession | null> | null = null;
 let collapsedTargetRect: DOMRect | null = null;
 let currentSession: IChatSession | null = null;
@@ -56,7 +57,7 @@ function updateDownloadButton(session: IChatSession | null) {
 
 	const canDownload = Boolean(session?.hasSpec && cachedSpec);
 	downloadButton.hidden = !canDownload;
-	downloadButton.disabled = isReplying || !canDownload;
+	downloadButton.disabled = isReplying || isGeneratingSpec || !canDownload;
 }
 
 function appendSpecMessage(messagesEl: HTMLElement, specText: string) {
@@ -68,21 +69,54 @@ function appendSpecMessage(messagesEl: HTMLElement, specText: string) {
 	messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
+function appendSpecRetryActions(
+	messagesEl: HTMLElement,
+	session: IChatSession,
+): void {
+	const existing = messagesEl.querySelector('[data-spec-retry-actions]');
+	existing?.remove();
+
+	const actions = document.createElement('div');
+	actions.className = 'hero-chat-actions';
+	actions.dataset.specRetryActions = '';
+
+	const retryButton = document.createElement('button');
+	retryButton.type = 'button';
+	retryButton.className = 'hero-chat-restart-btn';
+	retryButton.textContent = chatMsg().specRetryButton;
+	retryButton.addEventListener('click', () => {
+		if (isGeneratingSpec) return;
+		actions.remove();
+		void maybeGenerateAndShowSpec(messagesEl, session);
+	});
+
+	actions.appendChild(retryButton);
+	messagesEl.appendChild(actions);
+	messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
 async function maybeGenerateAndShowSpec(
 	messagesEl: HTMLElement,
 	session: IChatSession,
 ): Promise<void> {
 	if (!session.leadComplete || !session.canGenerateSpec) return;
 	if (specShownForChatId === session.chatId) return;
+	if (isGeneratingSpec) return;
 
+	isGeneratingSpec = true;
+	messagesEl.querySelector('[data-spec-retry-actions]')?.remove();
 	updateDownloadButton(currentSession);
 
-	const showGeneratingStatus = !session.hasSpec;
-	let statusMessage: Element | null = null;
+	let statusMessage = messagesEl.querySelector(
+		'[data-spec-status]',
+	) as HTMLElement | null;
 
-	if (showGeneratingStatus) {
+	if (!statusMessage) {
 		appendMessage(messagesEl, 'assistant', chatMsg().specGenerating);
-		statusMessage = messagesEl.lastElementChild;
+		statusMessage = messagesEl.lastElementChild as HTMLElement | null;
+		statusMessage?.setAttribute('data-spec-status', '');
+	} else {
+		statusMessage.textContent = chatMsg().specGenerating;
 	}
 
 	try {
@@ -100,6 +134,10 @@ async function maybeGenerateAndShowSpec(
 		} else {
 			appendErrorMessage(messagesEl, chatMsg().specFailed);
 		}
+		appendSpecRetryActions(messagesEl, session);
+	} finally {
+		isGeneratingSpec = false;
+		updateDownloadButton(currentSession);
 	}
 }
 

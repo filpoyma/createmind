@@ -68,6 +68,7 @@ export class ChatApiError extends Error {
 }
 
 const AI_REQUEST_TIMEOUT_MS = 60000;
+const SPEC_REQUEST_TIMEOUT_MS = 120_000;
 
 async function buildVisitorHeaders(): Promise<Record<string, string>> {
 	const chatId = getOrCreateChatId();
@@ -202,7 +203,7 @@ export async function generateSpec(): Promise<ISpecResult> {
 	const response = await fetch(`${apiUrl}/chat/sessions/${chatId}/spec`, {
 		method: 'POST',
 		headers,
-		signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
+		signal: AbortSignal.timeout(SPEC_REQUEST_TIMEOUT_MS),
 	});
 
 	const payload = (await response.json()) as IApiResponse<ISpecResult>;
