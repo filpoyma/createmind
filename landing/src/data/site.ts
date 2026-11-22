@@ -37,8 +37,9 @@ export const marqueeItems: Record<TLocale, readonly string[]> = {
 };
 
 export const contacts = {
-	telegram: 'https://t.me/andrey_dobrosvet',
+	telegram: 'https://t.me/RomanWorkarara',
 	telegramHandle: '@createmind',
-	whatsapp: 'https://wa.me/79998508849',
-	email: 'hello@createmind.org',
+	whatsapp: 'https://wa.me/917028304130',
+	email: 'filpoyma@gmail.com',
+	emailDisplay: 'hello@createmind.org',
 } as const;
