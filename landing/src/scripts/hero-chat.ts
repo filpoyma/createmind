@@ -24,6 +24,8 @@ let isReplying = false;
 let isGeneratingSpec = false;
 let sessionPromise: Promise<IChatSession | null> | null = null;
 let collapsedTargetRect: DOMRect | null = null;
+let collapsedInnerHeight = 0;
+let heroInnerResizeObserver: ResizeObserver | null = null;
 let currentSession: IChatSession | null = null;
 let cachedSpec: ISpecResult | null = null;
 let specShownForChatId: string | null = null;
@@ -154,6 +156,35 @@ function getShellTransition(): string {
 		`height ${EXPAND_DURATION_MS}ms ${EXPAND_EASING}`,
 		`border-radius ${EXPAND_DURATION_MS}ms ${EXPAND_EASING}`,
 	].join(', ');
+}
+
+function captureCollapsedInnerHeight(heroInner: HTMLElement): void {
+	collapsedInnerHeight = heroInner.offsetHeight;
+}
+
+function pinHeroInnerHeight(heroInner: HTMLElement): void {
+	if (collapsedInnerHeight <= 0) {
+		captureCollapsedInnerHeight(heroInner);
+	}
+	heroInner.style.minHeight = `${collapsedInnerHeight}px`;
+}
+
+function releaseHeroInnerHeight(heroInner: HTMLElement): void {
+	heroInner.style.minHeight = '';
+	captureCollapsedInnerHeight(heroInner);
+}
+
+function observeHeroInnerHeight(): void {
+	const heroInner = document.getElementById('hero-inner');
+	if (!heroInner || heroInnerResizeObserver) return;
+
+	heroInnerResizeObserver = new ResizeObserver(() => {
+		if (!chatExpanded && !isAnimating) {
+			captureCollapsedInnerHeight(heroInner);
+		}
+	});
+	heroInnerResizeObserver.observe(heroInner);
+	captureCollapsedInnerHeight(heroInner);
 }
 
 function measureCollapsedShellRect(
@@ -358,7 +389,7 @@ function finishExpand(
 	shell.classList.add('hero-chat-shell--expanded');
 	shell.style.cssText = '';
 	messagesEl.hidden = false;
-	heroInner.style.minHeight = '';
+	pinHeroInnerHeight(heroInner);
 	setTitlebarVisible(true);
 	isAnimating = false;
 	updateDownloadButton(currentSession);
@@ -372,7 +403,7 @@ function finishCollapse(
 	shell.classList.remove('hero-chat-shell--animating', 'hero-chat-shell--expanded');
 	shell.style.cssText = '';
 	messagesEl.hidden = true;
-	heroInner.style.minHeight = '';
+	releaseHeroInnerHeight(heroInner);
 	setTitlebarVisible(false);
 	isAnimating = false;
 	collapsedTargetRect = shell.getBoundingClientRect();
@@ -390,7 +421,8 @@ function expandChatShell(
 	window.setHeroState?.('WORKSPACE');
 
 	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-	heroInner.style.minHeight = `${heroInner.offsetHeight}px`;
+	captureCollapsedInnerHeight(heroInner);
+	pinHeroInnerHeight(heroInner);
 
 	const startRect = shell.getBoundingClientRect();
 	collapsedTargetRect = startRect;
@@ -398,7 +430,7 @@ function expandChatShell(
 	const endTop = innerRect.top;
 	const endLeft = innerRect.left;
 	const endWidth = innerRect.width;
-	const endHeight = startRect.bottom - innerRect.top;
+	const endHeight = collapsedInnerHeight;
 
 	messagesEl.hidden = false;
 	setTitlebarVisible(true);
@@ -456,7 +488,7 @@ function collapseChatShell() {
 	window.setHeroState?.('AMBIENT');
 
 	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-	heroInner.style.minHeight = `${heroInner.offsetHeight}px`;
+	pinHeroInnerHeight(heroInner);
 
 	const innerRect = heroInner.getBoundingClientRect();
 	const startTop = innerRect.top;
@@ -517,6 +549,9 @@ function expandChatIfNeeded(messagesEl: HTMLElement) {
 
 	if (!shell || !heroSection || !heroInner) return;
 
+	captureCollapsedInnerHeight(heroInner);
+	pinHeroInnerHeight(heroInner);
+
 	chatExpanded = true;
 	window.setHeroState?.('WORKSPACE');
 	messagesEl.hidden = false;
@@ -544,6 +579,8 @@ function expandChatOnInputFocus() {
 export async function initHeroChat(): Promise<void> {
 	const messagesEl = document.getElementById('hero-chat-messages');
 	if (!messagesEl) return;
+
+	observeHeroInnerHeight();
 
 	document
 		.getElementById('hero-chat-minimize')
