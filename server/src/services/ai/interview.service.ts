@@ -10,6 +10,7 @@ import {
 	limitText,
 	getShortenRetryInstruction,
 } from './messageLength';
+import { retryAiOperation } from './aiRetry';
 import {
 	createStructuredResponse,
 	type TProviderMessage,
@@ -107,7 +108,9 @@ export async function generateInterviewTurn(
 	brief: IProjectBrief,
 	locale: TLocale = 'ru',
 ): Promise<IInterviewTurn> {
-	let turn = await requestInterviewTurn(messages, brief, locale);
+	let turn = await retryAiOperation('Interview turn', () =>
+		requestInterviewTurn(messages, brief, locale),
+	);
 
 	if (!isTooLong(turn.message)) {
 		return turn;
@@ -115,11 +118,13 @@ export async function generateInterviewTurn(
 
 	logger.warn('Interview response exceeded length limit, retrying with shorten instruction');
 
-	turn = await requestInterviewTurn(
-		messages,
-		brief,
-		locale,
-		getShortenRetryInstruction(locale),
+	turn = await retryAiOperation('Interview turn (shorten)', () =>
+		requestInterviewTurn(
+			messages,
+			brief,
+			locale,
+			getShortenRetryInstruction(locale),
+		),
 	);
 
 	if (!isTooLong(turn.message)) {

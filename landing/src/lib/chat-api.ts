@@ -67,8 +67,8 @@ export class ChatApiError extends Error {
 	}
 }
 
-const AI_REQUEST_TIMEOUT_MS = 60000;
-const SPEC_REQUEST_TIMEOUT_MS = 120_000;
+const AI_REQUEST_TIMEOUT_MS = 120_000;
+const SPEC_REQUEST_TIMEOUT_MS = 180_000;
 
 async function buildVisitorHeaders(): Promise<Record<string, string>> {
 	const chatId = getOrCreateChatId();
